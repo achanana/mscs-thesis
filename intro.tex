@@ -1,0 +1,92 @@
+\chapter{Introduction}
+% Goal : 5-10 page talk before the talk
+% maybe not 10 pages, but providing a general overview of the paper is the goal here
+A significant body of work has aimed to address the inherent resource poverty
+of mobile devices using cloud or cloudlet offload \cite{satya}. Mobile
+devices perpetually lag behind static devices in computational ability because
+of their size and weight constraints \cite{satya2014}. Increased computational
+ability, at the same level of hardware efficiency, demands higher energy
+consumption. This requires larger batteries to preserve operating time, thereby
+increasing weight and size.  However, mobile devices become less useful the
+heavier and bigger they become.  For example, people prefer lighter and thinner
+smartphones as they are less intrusive and more portable. It turns out to also
+true for unmanned aerial vehicles (UAVs), or drones, which spend most of their
+energy on flight.  Increased drone weight leads to an upwards spiral in weight
+as larger rotors and more powerful motors are needed to achieve the same amount
+of lift.  This, in turn, requires larger batteries, which in turn may require a
+more reinforced aircraft structure, and so on.
+
+Cloudlet offload addresses these issues by allowing mobile devices to remotely
+execute computationally expensive tasks on static infrastructure that does not
+need to be light or small. This allows mobile devices to retain their low
+weight and small size, but possess computational abilities way beyond what
+would otherwise be possible.
+
+SteelEagle, an autonomous drone system, follows this approach \cite{bala2024}.
+Its main tenet is the use of commerical-off-the-shelf (COTS) drones, which are
+readily available at low cost but typically have minimal to no on-board
+compute.  Utilizing cloudlet offload, SteelEagle enables COTS drones to perform
+much more intelligent tasks than what they were designed for and exhibit
+autonomous capabilities typically only found in larger, more expensive drones.
+SteelEagle focuses on tasks that require the ability to sense changes in the
+physical environment over time, and to react to them. During flight, for
+instance, a drone can relay the video stream from its camera over a commercial
+cellular network to an on-ground cloudlet over a commercial cellular network,
+which can run a complex pipeline involving neural networks to perform tasks
+such as object detection.  This processing of the raw drone sensor streams
+allows us to obtain higher level semantic information about the drone's
+physical environment, such as the distance to obstacles that present the danger
+of a collision. The drone can then be sent piloting commands to react. For
+instance, these could be instructions to actuate to avoid an impending
+collision.
+
+An important consideration for SteelEagle is the agility of the resulting
+system.  How quickly can a drone respond to a change in its environment? It is
+the end-to-end latency of the entire execution pipeline, including sensing,
+offloading, inferencing, decision making, and actuation, that defines the
+agility. A high end-to-end latency can severely handicap the drone---it
+must fly at lower speeds to be safe if it takes a long time to identify
+obstacles and actuate to bypass them.
+
+To better understand the end-to-end latency, we can utilize the "Observe,
+Orient, Decide, Act" (OODA) loop framework devised by military strategist John
+R. Boyd. According to Boyd, decision-making happens in a continous iteration of
+these steps. He attributed the faster OODA loop of U.S. pilots flyng F-86s,
+because of the bubble-shaped canopy offering better visibility and hydraulic
+controls that allowed for easier switching between manoeuvres, as the reason
+why the slower F-86s fared better than the North Korean MiG-15s during the
+Korean War \cite{morton1995}. Paritioning the SteelEagle execution pipeline
+according to the OODA steps
+
+
+Cloudlet offload, by itself, imposes an
+upper bound on drone agility as it adds the cost of round-trip latency to a
+cloudlet. In the case of SteelEagle, this cost has so far been unavoidable
+as there has been no compute available on the drone.
+
+\section{Motivation}
+
+However, using only cloudlet offload presents severe limitations. First,
+SteelEagle drones struggle in areas with unreliable cell service and are
+completely inoperable in regions without cellular coverage. Second, cloudlet
+offload imposes an upper bound on drone agility as it adds the cost of a
+round-trip latency to a cloudlet. As originally envisioned, cloudlets are
+differentiated from clouds because of their physical proximity, which allows
+application end-to-end response time to be just a few milliseconds. However,
+in practice, the usage of commerical cellular networks for offload to the
+cloudlet increases this latency to tens of milliseconds. In practice, this
+limits the agility of the drone, as the reaction time is at least the round-trip
+time to the cloudlet.
+
+\section{Overview}
+
+
+\section{Contributions}
+
+The contributions of this thesis include
+\begin{itemize}
+  \item Things
+\end{itemize}
+
+
+\section{Organization}

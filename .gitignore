@@ -1,0 +1,29 @@
+# LaTeX auxiliary files
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+*.toc
+*.lot
+*.lof
+*.fls
+*.fdb_latexmk
+*.brf
+*.synctex.gz
+
+# Compiled files
+*.pdf
+*.dvi
+*.ps
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.~
+*.swp
+
+# Backup files
+*~
+*.bak
