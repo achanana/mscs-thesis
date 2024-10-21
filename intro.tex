@@ -109,20 +109,54 @@ retaining the generality offered by cloudlet offload.
 
 Autonomous drones perform tasks such as navigating between waypoints and
 tracking moving objects without the need for a human pilot.  However,
-autonomous drones today are large and expensive. Over time, they will become
-cheaper and lighter as new ASIC designs are developed that are more energy
-efficient and mass production lowers costs. Until then, leveraging edge
+autonomous drones today are large and expensive. Lightweight drones are more
+appealing, as they present a smaller public safety hazard and thus face fewer
+regulations. The FAA, for instance, has pre-authorized flights over people and
+vehicles by drones weighing less than 250 g. On the other hand, cheaper drones
+will help accelerate the uptake of autonomous drones in scenarios that stand to
+benefit the most from their abilities. Search and rescue operations, as well as
+wildlife conservation efforts that involve monitoring wildlife populations,
+will benefit immensely from the abilities of drones to cover large areas
+quickly. The potential for good increases exponentially with a swarm of drones
+working cooperatively. Especially in rural areas with limited resources, for
+instance, a swarm of drones working together could quickly scan large swathes
+of land looking for an abducted child.
+
+Over time, autonomous drones will
+become cheaper and lighter as new ASIC designs are developed that are more
+energy efficient and mass production lowers costs. Until then, leveraging edge
 computing to add autonomous features to lighter consumer-grade drones at a much
 lower price tag is a very appealing proposition. This is the software-hardware
 co-evolution path that Satyanarayanan et al outlined, presenting offloading as
-a way to "cheat" until ASIC designs are available \cite{satya21}. Lightweight
-drones are more versatile, as they present a smaller public safety hazard and
-thus face fewer regulations.
+a way to "cheat" until ASIC designs are available \cite{satya21}.
 
 Bala et al have demonstrated that even drones with a monocular camera can
-perform tasks such as object tracking and depth inference \cite{bala2024}.
+perform tasks such as object tracking and depth inference reasonablly
+well \cite{bala2024}. In their setup, Bala et al first attempted using a Samsung
+Galaxy smartwatch as a communications relay, mounted on top of a Parrot Anafi
+drone, for a total takeoff weight of about 360 g. The Samsung Galaxy smartwatch
+is appealing because it is an enclosed system, including a battery and an
+enclosure protected from the elements. It also has the ability to run Android
+applications onboard.  However, the constant LTE tranmission on the watch
+caused it to hit its thermal limits, which are set so that the watch can be
+safely worn on the human wrist, and shut down.
 
-\section{Background: Offloading Tactics}
+As an alternative, Bala et al used the Onion Omega 2 system-on-a-chip device
+\cite{onionomega2}. While the Omega 2 does not have the thermal limitations
+present in the Galaxy smartwatch, it has very weak computational capabilities.
+Intended for use as an IoT module, the Omega 2 runs the 580MHz MIPS 24KEc CPU
+and has only 16 MB of flash storage. In the SteelEagle setup, a VPN tunnel
+between the cloudlet and the Omega 2 over 4G LTE cellular allows communication
+with the drone that is connected to the Omega 2 over Wi-Fi. The Omega 2's role
+is to route packets between its Wi-Fi and LTE network interfaces, truly acting
+as just a communications relay.
+
+\section{Background: SteelEagle Benchmarks}
+Bala et al performed experiments to measure the agility of the SteelEagle
+system. The experiment setup involves setting up a stationary drone in a lab
+setting, with its camera pointed at a display connected to the cloudlet, showing
+the current timestamp in milliseconds. The drone camera captures images of this
+timestamp and transmits them to the cloudlet through the SteelEagle pipeline.
 
 \section{Motivation}
 
