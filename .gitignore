@@ -27,3 +27,5 @@
 # Backup files
 *~
 *.bak
+
+!figs/*.pdf
