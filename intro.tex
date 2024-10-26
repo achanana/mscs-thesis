@@ -2,6 +2,7 @@
 % Goal : 5-10 page talk before the talk
 % maybe not 10 pages, but providing a general overview of the paper is the goal here
 \section{Overview}
+\label{sec:overview}
 A significant body of work in the field of mobile computing has aimed to
 address the inherent resource poverty of mobile devices using cloud or cloudlet
 offload \cite{satya1996,satya2009}. Mobile devices perpetually lag behind
@@ -104,6 +105,52 @@ communications relay in SteelEagle allows us to continue treating the drone as
 a black box, but employ new cloudlet offload tactics that result in tighter
 OODA loops for use cases that can utilize the hardware accelerators, while
 retaining the generality offered by cloudlet offload.
+
+\section{Background: Edge Computing}
+\label{sec:bg-edge}
+
+There has been a huge increase in the number of mobile and Internet of Things
+(IoT) devices in recent years, driven by advancements in sensor, networking,
+and processing technologies.  These innovations have made devices smaller, more
+affordable, and more versatile, enabling their integration into nearly every
+aspect of modern life. As explained in \cref{sec:overview}, despite the
+innovations, these mobile devices remain resource-poor relative to static
+resources. A wearable device like a smartwatch, for example, has limited
+battery life, which constraints its ability to sustain prolonged conversation
+with an onboard AI virtual assistant. In 1997, Noble et al extended an adaptive
+application-aware framework called Odyssey, which provides remote data access
+to mobile clients, to perform speech recognition on a resource-constrained
+mobile device by offloading compute to a remote server \cite{noble1997}. This
+offloading technique allows a mobile device to circumvent its resource
+limitations.
+
+But a key question remains---where to offload? The cloud is an
+appealing choice today because of its on-demand and scalable nature. However,
+cloud computing resources are consolidated into datacenters at a small number
+of geographic locations to leverage economies of scale, increasing the distance
+between ends users and the cloud and thus increasing network latency. This can
+be a dealbreaker for latency-sensitive interactive applications such as
+augmented reality. An emperical study conducted with 2,504 Amazon EC2 clients
+found that more than 60\% of the clients experienced latencies higher than 40
+ms \cite{choy2012}. However, immersive augmented reality on a wearable device
+has a latency bound of 16 milliseconds \cite{ellis2004}.
+To attain crisp interactive application response,
+Satyanarayanan et al introduced the novel paradigm of edge computing
+\cite{satya2009}.
+
+
+Edge computing is a paradigm in which substantial computing and storage
+resources---referred to as "cloudlets"---are situated at the edge of the
+Internet in close proximity to mobile devices, sensors, end users, and Internet
+of Things (IoT) devices. This physical proximity offers several key advantages.
+First, it allows offloading to truly shine, enabled by the low latency, high
+bandwidth, and low jitter links to the cloudlets. Second, it reduces the
+bandwidth demand that IoT devices like video cameras place on the cloud, thus
+increasing scalability \cite{premsankar2018}. Third, a cloudlet can enforce a
+user's privacy policies specified for their IoT sensor data before the
+extracted information and metadata obtained from it is sent to the cloud.
+Finally, cloudlets help mitigate cloud outages by serving as a fallback service
+\cite{satya2017}.
 
 \section{Background: SteelEagle}
 
