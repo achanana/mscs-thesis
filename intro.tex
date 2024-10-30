@@ -3,25 +3,36 @@
 % maybe not 10 pages, but providing a general overview of the paper is the goal here
 \section{Overview}
 \label{sec:overview}
-A significant body of work in the field of mobile computing has aimed to
-address the inherent resource poverty of mobile devices using cloud or cloudlet
-offload \cite{satya1996,satya2009}. Mobile devices perpetually lag behind
+Mobile devices, such as smartphones and smartwatches, have a key limitation---a
+limited battery life which allows them to operate for finite periods before
+requiring recharging.  Resource-intensive applications, such as those involving
+augmented reality or deep learning inference, exacerbate the situation by
+accelerating battery depletion.  Consequently, a mobile device cannot match the
+sustained performance and resource capacity of stationary computers, which are
+free from the requirements of mobility. Mobile devices will always lag behind
 static devices in computational ability because of their size and weight
 constraints \cite{satya2014}. Increased computational ability, at the same
 level of hardware efficiency, demands higher energy consumption. This requires
 larger batteries to preserve operating time, thereby increasing weight and
-size---which are undesirable for mobile devices.  This is especially true for
-unmanned aerial vehicles (UAVs), or drones, which spend most of their energy on
-flight.  Increased drone weight leads to an upwards spiral in weight as larger
-rotors and more powerful motors are needed to achieve the same amount of lift.
-This requires larger batteries which, in turn, may require a more reinforced
-aircraft structure, and so on.
+size---which are undesirable for mobile devices.
 
-Cloudlet offload addresses these issues by allowing mobile devices to remotely
-execute computationally expensive tasks on static infrastructure that does not
-need to be light or small. This allows mobile devices to retain their low
-weight and small size, but possess computational abilities way beyond what
-would otherwise be possible.
+This is especially true for unmanned aerial vehicles (UAVs), or drones, which
+spend most of their energy on flight.  Increased drone weight leads to an
+upwards spiral in weight as larger rotors and more powerful motors are needed
+to achieve the same amount of lift.  This requires larger batteries which, in
+turn, may require a more reinforced aircraft structure, and so on. How, then,
+can we enable mobile devices to do more given the mobility constraints they are
+subject to? Advancements in hardware efficiency provide one possible way
+forward, but these advancements are slow and far between. There is
+a way to "cheat" that enables mobile devices to do more today.
+
+A significant body of work in the field of mobile computing has aimed to
+address the inherent resource poverty of mobile devices using cloud or
+cloudlet offload \cite{satya1996,satya2009}.  Cloudlet offload addresses these
+issues by allowing mobile devices to remotely execute computationally expensive
+tasks on static infrastructure that does not need to be light or small. This
+allows mobile devices to retain their low weight and small size, but possess
+computational abilities way beyond what would otherwise be possible.
 
 SteelEagle, an autonomous drone system, follows this approach \cite{bala2024}.
 Its main tenet is the use of commerical-off-the-shelf (COTS) drones, which are
@@ -55,14 +66,15 @@ fly at a higher altitude or at lower speeds to be safe if it takes a long time
 to identify obstacles and actuate to bypass them. Drone flight at a higher
 altitude precludes close observation, and lower speeds make missions take
 longer, limiting the capabilities of the drone. Search and rescue missions in
-forests, and missions to aid policing operations in dense cities, for instance,
-must fly at low altitudes while bypassing obstacles in the environment that
-present a collision risk---trees branches, streetlight poles, utility
-wires, and buildings---without impacting mission speed. Unless we can achieve
-high agility, SteelEagle drones will struggle to perform these missions well.
-Since these missions are one of the most compelling use cases for autonomous
-drones, benchmarking the end-to-end pipeline to determine latency bottlenecks
-and identifying opportunities for latency optimization is a very worthy pursuit.
+forests, and missions to aid law enforcement operations in dense cities, for
+instance, must fly at low altitudes while bypassing obstacles in the
+environment that present a collision risk---trees branches, streetlight poles,
+utility wires, and buildings---without impacting mission speed. Unless we can
+achieve high agility, SteelEagle drones will struggle to perform these missions
+well.  Since these missions are one of the most compelling use cases for
+autonomous drones, benchmarking the end-to-end pipeline to determine latency
+bottlenecks and identifying opportunities for latency optimization is a very
+worthy pursuit.
 
 The "Observe, Orient, Decide, Act" (OODA) loop framework devised by military
 strategist John R. Boyd provides a framework to structure our investigation
@@ -165,9 +177,9 @@ benefit the most from their abilities. Search and rescue operations, as well as
 wildlife conservation efforts that involve monitoring wildlife populations,
 will benefit immensely from the abilities of drones to cover large areas
 quickly. The potential for good increases exponentially with a swarm of drones
-working cooperatively. Especially in rural areas with limited resources, for
-instance, a swarm of drones working together could quickly scan large swathes
-of land looking for an abducted child.
+working cooperatively. In rural areas with limited law enforcement resources,
+for instance, a swarm of drones could quickly scan large swathes of land
+looking for an abducted child.
 
 Over time, autonomous drones will
 become cheaper and lighter as new ASIC designs are developed that are more
