@@ -42,6 +42,27 @@
 \draftstamp{\today}{DRAFT}
 
 \usepackage{cleveref}
+\crefname{figure}{Figure}{Figures}
+\Crefname{figure}{Figure}{Figures}
+\crefname{section}{Section}{Sections}
+\Crefname{section}{Section}{Sections}
+\usepackage{notoccite}
+
+\usepackage{xcolor}
+\hypersetup{
+    colorlinks,
+    linkcolor={red!50!black},
+    citecolor={blue!50!black},
+    urlcolor={blue!80!black}
+}
+
+\usepackage{tikz}
+\usepackage{wrapfig}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{siunitx}
+%\usepackage{setspace}
+%\setstretch{1}
 
 \begin {document}
 \frontmatter
@@ -129,7 +150,8 @@ Dave Eckhardt
 % Other than that, just make it look good...
 
 \input{intro.tex}
-\input{benchmarks.tex}
+\input{drones.tex}
+\input{steeleagle-optimization.tex}
 \input{section1.tex}
 \input{section2.tex}
 \input{conclusion.tex}
@@ -145,13 +167,13 @@ Dave Eckhardt
 \renewcommand{\bibsection}{\chapter{\bibname}}
 %\newcommand{\bibpreamble}{This text goes between the ``Bibliography''
 %  header and the actual list of references}
-\bibliographystyle{plainnat}
+\bibliographystyle{unsrt}
 \bibliography{register} %your bib file
 
-\begin{thebibliography}{00}
-
-\bibitem{thing} thing
-
-\end{thebibliography}
+% \begin{thebibliography}{00}
+%
+% \bibitem{thing} thing
+%
+% \end{thebibliography}
 
 \end{document}
