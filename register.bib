@@ -124,22 +124,6 @@ series = {HotMobile '21}
   keywords={Cloud computing;Edge computing;Data centers;Mobile communication;Servers;Computer architecture;Internet of Things;Edge computing;fog computing;Internet of Things (IoT);mobile gaming},
   doi={10.1109/JIOT.2018.2805263}}
 
-@inproceedings{10.1145/268998.266708,
-author = {Noble, Brian D. and Satyanarayanan, M. and Narayanan, Dushyanth and Tilton, James Eric and Flinn, Jason and Walker, Kevin R.},
-title = {Agile application-aware adaptation for mobility},
-year = {1997},
-isbn = {0897919165},
-publisher = {Association for Computing Machinery},
-address = {New York, NY, USA},
-url = {https://doi.org/10.1145/268998.266708},
-doi = {10.1145/268998.266708},
-booktitle = {Proceedings of the Sixteenth ACM Symposium on Operating Systems Principles},
-pages = {276–287},
-numpages = {12},
-location = {Saint Malo, France},
-series = {SOSP '97}
-}
-
 @article{noble1997,
 author = {Noble, Brian D. and Satyanarayanan, M. and Narayanan, Dushyanth and Tilton, James Eric and Flinn, Jason and Walker, Kevin R.},
 title = {Agile application-aware adaptation for mobility},
@@ -321,4 +305,82 @@ author={Parrot},
   author = {Parrot},
   title        = {{ANAFI: Compact and resistant drone with a 4K HDR camera}},
   note = {Accessed: 2024-11-08},
+}
+
+@misc{ffmpeg,
+ title        = {{FFmpeg}},
+  howpublished          = "\url{https://ffmpeg.org/}",
+author={{Community Project}}
+}
+
+@misc{pdraw,
+ title        = {{PDrAW}},
+  howpublished          = "\url{https://developer.parrot.com/docs/pdraw/overview.html}",
+ author = {Parrot}
+}
+
+@misc{opencv,
+    title={{OpenCV}},
+    note="\url{https://opencv.org/}",
+    author={{Community Project}}
+}
+
+@phdthesis{zchenthesis,
+  author       = {Z. Chen},
+  title        = {An application platform for wearable cognitive assistance},
+  year         = {2018},
+  school       = {Department of Computer Science, Carnegie Mellon University},
+  address      = {Pittsburgh, PA},
+}
+
+@book{flinn2012cyber,
+  author    = {J. Flinn},
+  title     = {Cyber foraging: Bridging mobile and cloud computing via opportunistic offload},
+  editor    = {M. Satyanarayanan},
+  series    = {Synthesis Lectures on Mobile and Pervasive Computing},
+  publisher = {Morgan \& Claypool Publishers},
+  year      = {2012},
+  address   = {San Rafael, CA}
+}
+
+@INPROCEEDINGS{satya-edge-native,
+  author={Satyanarayanan, Mahadev and Klas, Guenter and Silva, Marco and Mangiante, Simone},
+  booktitle={2019 IEEE International Conference on Edge Computing (EDGE)},
+  title={The Seminal Role of Edge-Native Applications},
+  year={2019},
+  volume={},
+  number={},
+  pages={33-40},
+  keywords={Edge computing;Cloud computing;Streaming media;Bandwidth;Real-time systems;Computational modeling;Mobile handsets;edge computing;cloudlet;cognitive assistance;augmented reality;5G wireless;4G LTE wireless;IoT;driver safety;automotive systems},
+  doi={10.1109/EDGE.2019.00022}}
+
+
+@inproceedings{balan2003,
+author = {Balan, Rajesh Krishna and Satyanarayanan, Mahadev and Park, So Young and Okoshi, Tadashi},
+title = {Tactics-based remote execution for mobile computing},
+year = {2003},
+isbn = {9781450377973},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/1066116.1066125},
+doi = {10.1145/1066116.1066125},
+abstract = {Remote execution can transform the puniest mobile device into a computing giant able to run resource-intensive applications such as natural language translation, speech recognition, face recognition, and augmented reality. However, easily partitioning these applications for remote execution while retaining application-specific information has proven to be a difficult challenge. In this paper, we show that automated dynamic repartitioning of mobile applications can be reconciled with the need to exploit application-specific knowledge. We show that the useful knowledge about an application relevant to remote execution can be captured in a compact declarative form called tactics. Tactics capture the full range of meaningful partitions of an application and are very small relative to code size. We present the design of a tactics-based remote execution system, Chroma, that performs comparably to a runtime system that makes perfect partitioning decisions. Furthermore, we show that Chroma can automatically use extra resources in an over-provisioned environment to improve application performance.},
+booktitle = {Proceedings of the 1st International Conference on Mobile Systems, Applications and Services},
+pages = {273–286},
+numpages = {14},
+location = {San Francisco, California},
+series = {MobiSys '03}
+}
+
+@inproceedings{flinn2002,
+author = {Flinn, Jason and Park, SoYoung and Satyanarayanan, M.},
+title = {Balancing Performance, Energy, and Quality in Pervasive Computing},
+year = {2002},
+isbn = {0769515851},
+publisher = {IEEE Computer Society},
+address = {USA},
+abstract = {We describe Spectra, a remote execution system for battery-powered clients used in pervasive computing. Spectra enables applications to combine the mobility of small devices with the greater processing power of static compute servers. Spectra is self-tuning: it monitors both application resource usage and the availability of resources in the environment, and dynamically determines how and where to execute application components. In making this determination, Spectra balances the competing goals of performance, energy conservation, and application quality. We have validated Spectra's approach on the Compaq Itsy v2.2 andIBMThinkPad 560X using a speech recognizer, a document preparation system, and a natural language translator. Our results confirm that Spectra almost always selects the best execution plan, and that its few suboptimal choices are very close to optimal.},
+booktitle = {Proceedings of the 22 Nd International Conference on Distributed Computing Systems (ICDCS'02)},
+pages = {217},
+series = {ICDCS '02}
 }

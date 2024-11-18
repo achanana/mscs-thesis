@@ -1,7 +1,7 @@
 \chapter{Introduction}
 % Goal : 5-10 page talk before the talk
 % maybe not 10 pages, but providing a general overview of the paper is the goal here
-\section{Overview}
+\section{Motivation}
 \label{sec:overview}
 Mobile devices, such as smartphones and smartwatches, have a key limitation---a
 limited battery life which allows them to operate for finite periods before
@@ -15,24 +15,51 @@ constraints \cite{satya2014}. Increased computational ability, at the same
 level of hardware efficiency, demands higher energy consumption. This requires
 larger batteries to preserve operating time, thereby increasing weight and
 size---which are undesirable for mobile devices.
+\Cref{tab:mobility-constraints} shows how mobile devices have lagged behind
+servers in computational power over a period of 25 years. This limitation has
+been referred to as the ``mobile penalty'', the cost for reduction in
+performance required to adhere to mobility constraints
+\cite{satya-edge-native}.
 
-This is especially true for unmanned aerial vehicles (UAVs), or drones, which
-spend most of their energy on flight.  Increased drone weight leads to an
-upwards spiral in weight as larger rotors and more powerful motors are needed
-to achieve the same amount of lift.  This requires larger batteries which, in
-turn, may require a more reinforced aircraft structure, and so on. How, then,
-can we enable mobile devices to do more given the mobility constraints they are
-subject to? Advancements in hardware efficiency provide one possible way
-forward, but these advancements are slow and far between. There is
-a way to "cheat" that enables mobile devices to do more today.
+\begin{table}[htbp]
+    \centering
+    \begin{tabular}{@{}lllll}
+        \toprule & \multicolumn{2}{c}{\textbf{Typical Server}} & \multicolumn{2}{c}{\textbf{Typical Mobile Device}}\\\midrule
+        \textbf{Year} & \textbf{Processor} & \textbf{Speed} & \textbf{Device} & \textbf{Speed}\\\midrule
+        1997 & Intel Pentium II & 266 MHz & Palm Pilot & 16 MHz\\
+        2002 & Intel Itanium & 1 GHz & Blackberry 5810 & 133 MHz\\
+        2007 & Intel Core 2 Quad Q6600 & 2.4 GHz x 4 & Apple iPhone & 412 MHz\\
+        2012 & Intel Xeon E5-2690 & 3.8 GHz x 8 & Samsung Galaxy S3 & 1.4 GHz x 4\\
+        2017 & Intel Xeon Platinum 8180 & 3.8 GHz x 28 & Google Pixel 2 & 2.35 GHz x 4,\\
+             &&&& 1.9 GHz x 4\\
+        2022 & AMD EPYC 9654 & 3.7 GHz x 96 & Samsung Galaxy S22 Ultra & 3 GHz x 1,\\
+             &&&& 2.5 GHz x 3,\\
+             &&&& 1.8 Ghz x 4\\
+        \bottomrule
+    \end{tabular}
+    \caption{The Mobility Penalty Over a Period of 25 Years (Adapted from Chen \cite{zchenthesis}, Flinn \cite{flinn2012cyber})}
+    \label{tab:mobility-constraints}
+\end{table}
+
+This limitation is particularly problematic for unmanned aerial vehicles
+(UAVs), or drones, which spend most of their energy on flight. Larger batteries
+required to sustain intensive on-drone computation increases drone weight.
+Increased drone weight leads to an upwards spiral in weight as larger rotors
+and more powerful motors are needed to achieve the same amount of lift.  This
+requires even larger batteries which, in turn, may require a more reinforced
+aircraft structure, and so on. How, then, can we enable mobile devices to do
+more given the mobility constraints they are subject to? Advancements in
+hardware efficiency provide one possible way forward, but these advancements
+are slow and far between. It turns out that there is a way to "cheat" that
+enables mobile devices to do more today.
 
 A significant body of work in the field of mobile computing has aimed to
-address the inherent resource poverty of mobile devices using cloud or
-cloudlet offload \cite{satya1996,satya2009}.  Cloudlet offload addresses these
-issues by allowing mobile devices to remotely execute computationally expensive
-tasks on static infrastructure that does not need to be light or small. This
-allows mobile devices to retain their low weight and small size, but possess
-computational abilities way beyond what would otherwise be possible.
+address the inherent resource poverty of mobile devices using cloud or cloudlet
+offload \cite{satya1996,satya2009}.  Cloudlet offload addresses these issues by
+allowing mobile devices to remotely execute computationally expensive tasks on
+cloudlets that do not need to be light or small. This allows mobile devices to
+retain their low weight and small size, but possess superior computational
+abilities.
 
 SteelEagle, an autonomous drone system, follows this approach \cite{bala2024}.
 Its main tenet is the use of commerical-off-the-shelf (COTS) drones, which are
@@ -76,19 +103,6 @@ autonomous drones, benchmarking the end-to-end pipeline to determine latency
 bottlenecks and identifying opportunities for latency optimization is a very
 worthy pursuit.
 
-The "Observe, Orient, Decide, Act" (OODA) loop framework devised by military
-strategist John R. Boyd provides a framework to structure our investigation
-into the end-to-end latency of SteelEagle. According to Boyd, decision-making
-happens in a continuous iteration of these steps. Boyd attributed the faster
-OODA loop of U.S. pilots flyng F-86s, because of the bubble-shaped canopy
-offering better visibility and hydraulic controls that allowed for easier
-switching between manoeuvres, as the reason the slower F-86s fared better than
-the North Korean MiG-15s during the Korean War \cite{morton1995}. A system with
-a tighter OODA loop corresponds to a more agile drone. Instead of measuring
-just the overall system latency, performing a break down of the latency across
-the OODA steps provides more insight into system latency bottlenecks. Ideally,
-the decision stage, which involves inferencing, should be the slowest stage.
-
 SteelEagle drones currently act as thin clients, performing no on-board
 computation---they are controlled exclusively over the network. They transmit a
 video stream from their camera to a cloudlet which determines the next course
@@ -102,9 +116,8 @@ round-trip latency to a cloudlet. As originally envisioned, cloudlets are
 differentiated from clouds because of their physical proximity, which allows
 application end-to-end response time to be just a few milliseconds. However, in
 practice, the usage of commerical cellular networks for offload to the cloudlet
-increases this latency to tens of milliseconds. In practice, this limits the
-agility of the drone, as the reaction time is at least the round-trip time to
-the cloudlet.
+increases this latency to tens of milliseconds. This limits the agility of the
+drone, as the reaction time is at least the round-trip time to the cloudlet.
 
 This thesis explores the use of onboard computation to mitigate these issues,
 and the resulting impact on drone agility. In recent years, domain-specific
@@ -118,106 +131,6 @@ a black box, but employ new cloudlet offload tactics that result in tighter
 OODA loops for use cases that can utilize the hardware accelerators, while
 retaining the generality offered by cloudlet offload.
 
-\section{Background: Edge Computing}
-\label{sec:bg-edge}
-
-There has been a huge increase in the number of mobile and Internet of Things
-(IoT) devices in recent years, driven by advancements in sensor, networking,
-and processing technologies.  These innovations have made devices smaller, more
-affordable, and more versatile, enabling their integration into nearly every
-aspect of modern life. As explained in \cref{sec:overview}, despite the
-innovations, these mobile devices remain resource-poor relative to static
-resources. A wearable device like a smartwatch, for example, has limited
-battery life, which constraints its ability to sustain prolonged conversation
-with an onboard AI virtual assistant. In 1997, Noble et al extended an adaptive
-application-aware framework called Odyssey, which provides remote data access
-to mobile clients, to perform speech recognition on a resource-constrained
-mobile device by offloading compute to a remote server \cite{noble1997}. This
-offloading technique allows a mobile device to circumvent its resource
-limitations.
-
-But a key question remains---where to offload? The cloud is an
-appealing choice today because of its on-demand and scalable nature. However,
-cloud computing resources are consolidated into datacenters at a small number
-of geographic locations to leverage economies of scale, increasing the distance
-between ends users and the cloud and thus increasing network latency. This can
-be a dealbreaker for latency-sensitive interactive applications such as
-augmented reality. An emperical study conducted with 2,504 Amazon EC2 clients
-found that more than 60\% of the clients experienced latencies higher than 40
-ms \cite{choy2012}. However, immersive augmented reality on a wearable device
-has a latency bound of 16 milliseconds \cite{ellis2004}.
-To attain crisp interactive application response,
-Satyanarayanan et al introduced the novel paradigm of edge computing
-\cite{satya2009}.
-
-
-Edge computing is a paradigm in which substantial computing and storage
-resources---referred to as "cloudlets"---are situated at the edge of the
-Internet in close proximity to mobile devices, sensors, end users, and Internet
-of Things (IoT) devices. This physical proximity offers several key advantages.
-First, it allows offloading to truly shine, enabled by the low latency, high
-bandwidth, and low jitter links to the cloudlets. Second, it reduces the
-bandwidth demand that IoT devices like video cameras place on the cloud, thus
-increasing scalability \cite{premsankar2018}. Third, a cloudlet can enforce a
-user's privacy policies specified for their IoT sensor data before the
-extracted information and metadata obtained from it is sent to the cloud.
-Finally, cloudlets help mitigate cloud outages by serving as a fallback service
-\cite{satya2017}.
-
-\section{Background: SteelEagle}
-
-Autonomous drones perform tasks such as navigating between waypoints and
-tracking moving objects without the need for a human pilot.  However,
-autonomous drones today are large and expensive. Lightweight drones are more
-appealing, as they present a smaller public safety hazard and thus face fewer
-regulations. The FAA, for instance, has pre-authorized flights over people and
-vehicles by drones weighing less than 250 g. On the other hand, cheaper drones
-will help accelerate the uptake of autonomous drones in scenarios that stand to
-benefit the most from their abilities. Search and rescue operations, as well as
-wildlife conservation efforts that involve monitoring wildlife populations,
-will benefit immensely from the abilities of drones to cover large areas
-quickly. The potential for good increases exponentially with a swarm of drones
-working cooperatively. In rural areas with limited law enforcement resources,
-for instance, a swarm of drones could quickly scan large swathes of land
-looking for an abducted child.
-
-Over time, autonomous drones will
-become cheaper and lighter as new ASIC designs are developed that are more
-energy efficient and mass production lowers costs. Until then, leveraging edge
-computing to add autonomous features to lighter consumer-grade drones at a much
-lower price tag is a very appealing proposition. This is the software-hardware
-co-evolution path that Satyanarayanan et al outlined, presenting offloading as
-a way to "cheat" until ASIC designs are available \cite{satya21}.
-
-Bala et al have demonstrated that even drones with a monocular camera can
-perform tasks such as object tracking and depth inference reasonablly
-well \cite{bala2024}. In their setup, Bala et al first attempted using a Samsung
-Galaxy smartwatch as a communications relay, mounted on top of a Parrot Anafi
-drone, for a total takeoff weight of about 360 g. The Samsung Galaxy smartwatch
-is appealing because it is an enclosed system, including a battery and an
-enclosure protected from the elements. It also has the ability to run Android
-applications onboard.  However, the constant LTE tranmission on the watch
-caused it to hit its thermal limits, which are set so that the watch can be
-safely worn on the human wrist, and shut down.
-
-As an alternative, Bala et al used the Onion Omega 2 system-on-a-chip device
-\cite{onionomega2}. While the Omega 2 does not have the thermal limitations
-present in the Galaxy smartwatch, it has very weak computational capabilities.
-Intended for use as an IoT module, the Omega 2 runs the 580MHz MIPS 24KEc CPU
-and has only 16 MB of flash storage. In the SteelEagle setup, a VPN tunnel
-between the cloudlet and the Omega 2 over 4G LTE cellular allows communication
-with the drone that is connected to the Omega 2 over Wi-Fi. The Omega 2's role
-is to route packets between its Wi-Fi and LTE network interfaces, truly acting
-as just a communications relay.
-
-\section{Background: SteelEagle Benchmarks}
-Bala et al performed experiments to measure the agility of the SteelEagle
-system. The experiment setup involves setting up a stationary drone in a lab
-setting, with its camera pointed at a display connected to the cloudlet, showing
-the current timestamp in milliseconds. The drone camera captures images of this
-timestamp and transmits them to the cloudlet through the SteelEagle pipeline.
-
-\section{Motivation}
 
 
 \section{Overview}
@@ -232,3 +145,15 @@ The contributions of this thesis include
 
 
 \section{Organization}
+The "Observe, Orient, Decide, Act" (OODA) loop framework devised by military
+strategist John R. Boyd provides a framework to structure our investigation
+into the end-to-end latency of SteelEagle. According to Boyd, decision-making
+happens in a continuous iteration of these steps. Boyd attributed the faster
+OODA loop of U.S. pilots flyng F-86s, because of the bubble-shaped canopy
+offering better visibility and hydraulic controls that allowed for easier
+switching between manoeuvres, as the reason the slower F-86s fared better than
+the North Korean MiG-15s during the Korean War \cite{morton1995}. A system with
+a tighter OODA loop corresponds to a more agile drone. Instead of measuring
+just the overall system latency, performing a break down of the latency across
+the OODA steps provides more insight into system latency bottlenecks.
+

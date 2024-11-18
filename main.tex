@@ -27,7 +27,7 @@
 \usepackage[backref,pageanchor=true,plainpages=false, pdfpagelabels, bookmarks,bookmarksnumbered,
 %pdfborder=0 0 0,  %removes outlines around hyper links in online display
 ]{hyperref}
-\usepackage{subfigure}
+%\usepackage{subfigure}
 \usepackage{braket}
 
 % Approximately 1" margins, more space on binding side
@@ -61,8 +61,19 @@
 \usepackage{tabularx}
 \usepackage{booktabs}
 \usepackage{siunitx}
+\usepackage{subcaption}
+\captionsetup[subfigure]{format=hang}
 %\usepackage{setspace}
 %\setstretch{1}
+
+
+\newcommand{\observeab}{Observe$_{ab}$}
+\newcommand{\observec}{Observe$_{c}$}
+\newcommand{\orientdecide}{Orient+\allowbreak Decide$_{d}$}
+\newcommand{\acte}{Act$_{e}$}
+\newcommand{\actfg}{Act$_{fg}$}
+
+\setlength{\parskip}{5pt plus 1pt minus 1pt}%
 
 \begin {document}
 \frontmatter
@@ -121,11 +132,12 @@ Dave Eckhardt
 \end{acknowledgments}
 
 
-
+\backrefsetup{disable}
 \tableofcontents
 \listoffigures
 
 \listoftables
+\backrefsetup{enable}
 
 \mainmatter
 
@@ -150,10 +162,10 @@ Dave Eckhardt
 % Other than that, just make it look good...
 
 \input{intro.tex}
+\input{background.tex}
 \input{drones.tex}
 \input{steeleagle-optimization.tex}
-\input{section1.tex}
-\input{section2.tex}
+\input{voxl.tex}
 \input{conclusion.tex}
 
 %\appendix
