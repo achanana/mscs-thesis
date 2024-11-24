@@ -24,6 +24,7 @@
 \usepackage{graphicx}
 \usepackage{amsmath}
 \usepackage[numbers,sort]{natbib}
+\usepackage[hyphens,spaces,obeyspaces]{url}
 \usepackage[backref,pageanchor=true,plainpages=false, pdfpagelabels, bookmarks,bookmarksnumbered,
 %pdfborder=0 0 0,  %removes outlines around hyper links in online display
 ]{hyperref}
@@ -63,6 +64,8 @@
 \usepackage{siunitx}
 \usepackage{subcaption}
 \captionsetup[subfigure]{format=hang}
+\usepackage{wrapfig}
+\usepackage{comment}
 %\usepackage{setspace}
 %\setstretch{1}
 
@@ -74,6 +77,15 @@
 \newcommand{\actfg}{Act$_{fg}$}
 
 \setlength{\parskip}{5pt plus 1pt minus 1pt}%
+
+\newenvironment{captext}{%
+   \begin{center}%
+     \begin{minipage}{0.95\linewidth}%
+       \renewcommand{\baselinestretch}{1.0}%
+         \footnotesize}%
+   {\renewcommand{\baselinestretch}{1.0}%
+      \end{minipage}%
+        \end{center}}
 
 \begin {document}
 \frontmatter

@@ -28,6 +28,12 @@ UAV, introduced in 1986, saw extensive use in the Gulf War. Today, the General
 Atomics MQ-1 Predator can fly for over 14 hours performing surveillance
 missions using an array of sensors, including infrared cameras.
 
+\begin{figure}[htbp]
+\centerline{\includegraphics[width = .4\textwidth]{figs/dji-mini-4k.jpg}}
+\caption{DJI Mini 4K}
+\label{fig:dji-mini-4k}
+\end{figure}
+
 The turn of the century saw the use of small drones in civillian settings, with
 technology advances making them cheaper to produce. Drones, particularly
 quadcopters (\cref{fig:dji-mini-4k}), started being used for mapping, aerial
@@ -40,11 +46,8 @@ makes quadcopter drones well-suited for both indoor and outdoor use.  Since the
 2010s, drones have evolved significantly, with a range of consumer photography
 and racing drones easily available to consumers, at a wide range of price
 points. Drones are commonly used for filming and recreation, and have also seen
-use in logistics, to deliver packages.
-
-They have also been put to use in search and rescue
-\cite{scherer2015}\cite{tomic2012}, wildlife conservation \cite{gemert2015} and
-emergency
+use in logistics, to deliver packages. They have also been put to use in search and rescue
+\cite{scherer2015}\cite{tomic2012}\cite{mcrae2019} and wildlife conservation \cite{gemert2015}\cite{gonzalez2016}.
 
 The scale of their adoption is
 immense---The Federal Aviation Administration (FAA) has received registrations
@@ -52,18 +55,12 @@ for almost 800,000 drones \cite{faa_drones_2024}.  This figure excludes
 thousands of hobbyist drones weighing under 250 g that do not require FAA
 registration.
 
-\section{The capabilities of today's drones}
+\section{Capabilities of Today's Drones}
 \label{sec:drone-capabilities}
 
-\begin{figure}[htbp]
-\centerline{\includegraphics[width = .5\textwidth]{figs/dji-mini-4k.jpg}}
-\caption{DJI Mini 4K}
-\label{fig:dji-mini-4k}
-\end{figure}
-
 Today, the set of features available in consumer-grade drones is impressive.
-The DJI Mini 4K, for instance, is priced at \$299, weighs under 250g, records
-video at 4K 30 FPS, and has a maximum flight time of about 30 minutes
+The DJI Mini 4K (\cref{fig:dji-mini-4k}) is priced at \$299, weighs under 250g,
+records video at 4K 30 FPS, and has a maximum flight time of about 30 minutes
 \cite{dji_mini_4k}. Most drone's today have the ability to fly
 semi-autonomously in addition to the ability to be controlled remotely by a
 human. As shown in \cref{fig:drone-components}, drones have advanced
@@ -115,4 +112,57 @@ Consumer drones are typically controlled over Wi-Fi using a controller or a
 smartphone app, and typically lack cellular connectivity, limiting their
 flying range.
 
+\section{Levels of Autonomy}
 
+\begin{figure}[htbp]
+\centerline{\includegraphics[width = .8\textwidth]{figs/autonomy-spectrum.pdf}}
+\caption{Drone Autonomy Levels}
+\label{fig:drone-autonomy-spectrum}
+\end{figure}
+
+Drones exhibit varying levels of autonomy, as shown in
+\cref{fig:drone-autonomy-spectrum}. As we move to the right, the reliance on
+human drone operators reduces, as the drones feature more autonomous abilities.
+On the manual end of the spectrum are drones such as the DJI Avata 2, a
+first-person view (FPV) drone. FPV drone pilots receive a real-time video
+stream from the drone's onboard camera and manually control the drone. These
+drones are optimized for high-speed flight and maneuverability, giving them the
+ability to navigate through tight obstacles at speed. Manually piloting a drone
+requires skill and constant human pilot input, which reduces the usefulness of
+these drones.
+
+Drones such as the Parrot Anafi include semi-autonomous features such as the
+ability to hover and navigate between waypoints. These drones often include a
+return-to-home (RTH) function which automatically returns the drone to its
+takeoff location if the battery is low, or if the drone loses its connection to
+the pilot's controller. Advanced semi-autonomous drones such as the DJI Mini 4
+Pro can also follow a human or vehicle target. These semi-autonomous features
+reduce the level of skill required for piloting and the reliance on the human
+pilot, but still require the pilot to specify the next course of action to
+fulfill higher-level mission objectives.
+
+\begin{figure}[htbp]
+    \centerline{\includegraphics[width = .9\textwidth]{figs/BVLOS.jpeg}}
+    \caption{Drone Operation Line-of-Sight Requirements \cite{flyeye_bvlos}}
+\label{fig:drone-line-of-sight}
+\end{figure}
+
+On the right end of the spectrum are fully-autonomous drones, which execute a
+pre-programmed mission without a human pilot while adapting to operational and
+environmental conditions during flight. The DJI Matrice 300 RTK, for instance,
+can inspect pre-specified objects of interest, such as power transmission
+towers, without any human input.
+
+Regulatory hurdles, however, impact the versatility of fully-autonomous drones.
+FAA regulations require that drone operators keep drones within sight during
+flight \cite{faa_part107}. For FPV drones, it is sufficient to have a visual
+observer that always has the drone in sight.  These two modes of operation
+correspond to ``Visual Line of Sight'' (VLoS) and ``Extended Visual Line of
+Sight'' (EVLoS) in \cref{fig:drone-line-of-sight}. While a number of use cases
+can be covered under these modes of operation, the holy grail for drones lies
+in ``Beyond Visual Line of Sight'' (BVLoS) operation. BVLoS operation allows
+drones to fly a much wider range of missions. Missions involve package delivery
+requires drones to fly to a far-off destination, improving speed and reducing
+the logistical cost compared to human delivery via road. Requiring a human
+observer to maintain sight of the drone at all times defeats the purpose of
+this application.

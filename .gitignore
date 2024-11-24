@@ -30,3 +30,5 @@
 
 !figs/*.pdf
 *webp
+*.odg#
+CVS

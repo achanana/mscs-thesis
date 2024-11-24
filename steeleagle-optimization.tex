@@ -93,24 +93,10 @@ stage of the OODA pipeline. The ``Observe'' phase includes components (a), (b),
 and (c). Components (d) maps to the ``Orient'' and ``Decide'' phases. Finally,
 components (e), (f), and (g) correspond to the ``Act'' phase.
 
-\begin{figure}[htbp]
-\centerline{\includegraphics[width = .5\textwidth]{figs/fig-ooda-nomenclature.pdf}}
-\caption{Measurable Components of the OODA Loop}
-\label{fig:ooda-nomenclature}
-\end{figure}
-
-We are limited in our ability to individually measure the contribution of
-components of the OODA loop. The drone sensing and pre-processing, components
-(a) and (b), for instance, cannot be measured individually because the drone is
-a COTS product that runs closed source software which does not allow the
-ability to insert software instrumentation. Similarly, drone post-processing
-and actuation must be measured together.  \Cref{fig:ooda-nomenclature} shows
-the parts of the pipeline that can be measured in red.
-
 \section{Measuring the performance of the SteelEagle pipeline}
 \label{sec:steeleagle-performance-measurement}
 
-Calculating drone-to-cloudlet latency is challenging since SteelEagle uses COTS
+Benchmarking the performance of SteelEagle is challenging since it uses COTS
 drones that restrict modification of its onboard software. The inability to add
 software instrumentation on the drone makes it difficult to determine when a
 given frame was transmitted from the drone. To circumvent this restriction,
@@ -129,11 +115,12 @@ the cloudlet showing the current Unix timestamp at millisecond granularity. The
 drone captures images containing the timestamp displayed and transmits them to
 the cloudlet through the SteelEagle pipeline. The cloudlet records the
 timestamp at which it receives each frame, storing the frame along with this
-timestamp. To obtain the drone-to-cloudlet latency, these saved frames are
+timestamp. These saved frames are then
 post-processed to compute the difference between the timestamps shown in each
-frame and the timestamps at which they were received at the cloudlet.
+frame and the timestamps at which they were received at the cloudlet. This
+difference corresponds to the latency of components (a) through (d).
 
-\section{Experiment 1: Optimizing SteelEagle Latency}
+\section{Experiment 1: Optimizing SteelEagle Video Decoding}
 \label{sec:exp1}
 
 \begin{figure}[htbp]
@@ -162,13 +149,13 @@ frame and the timestamps at which they were received at the cloudlet.
 The starting point of our investigation into the performance of the SteelEagle
 system is the mean drone-to-cloudlet latency of 933 ms reported by Bala et al
 in their benchmarking of the SteelEagle system
-(\cref{fig:steeleagle-original-latency}). This includes the \observeab,
-\observec, and {\orientdecide} components of the OODA pipeline.  The latency was
-obtained using the Parrot Anafi drone (\cref{fig:parrot-anafi}), which
-transmits a 720p H.264 RTSP stream at 30 FPS over UDP from its monocular
-camera.  The Anafi uses a slice encoding and intra-refresh scheme that
-disperses keyframe slices across multiple network packets
-\cite{anafi_white_paper}. To reduce network bandwidth requirements, it
+(\cref{fig:steeleagle-original-latency}). This includes the ``Observe'' and
+``Orient \& Decide'' components of the OODA pipeline, components (a) through
+(d) in \cref{fig:ooda-mapping}.  The latency was obtained using the Parrot
+Anafi drone (\cref{fig:parrot-anafi}), which transmits a 720p H.264 RTSP stream
+at 30 FPS over UDP from its monocular camera.  The Anafi uses a slice encoding
+and intra-refresh scheme that disperses keyframe slices across multiple network
+packets \cite{anafi_white_paper}. To reduce network bandwidth requirements, it
 generates an H.264 compressed video stream using onboard hardware from the raw
 frames that it obtains from its camera. Consequently, decoding of this H.264
 stream is required to obtain individual video frames.  The setup uses the Onion
@@ -176,13 +163,13 @@ Omega 2 LTE (\cref{fig:onion-omega}) as a network gateway to allow the Anafi to
 reach the cloudlet over LTE, since the Parrot Anafi lacks cellular
 connectivity.
 
-The described technique to measure latency does not provide a granular breakup
-of the drone-to-cloudlet latency. As a result, it is not clear from the
-measurements where the bottleneck resides. As an initial approach, we measure
-the impact on latency when the cloudlet location and the video decoding library
-used are modified. If the latency is significantly reduced by changing a
-factor, we can conclude that the bottleneck resides in the corresponding
-component.
+The technique to measure latency described in
+\cref{sec:steeleagle-performance-measurement} does not provide a granular
+latency breakup. As a result, it is not clear from the measurements where the
+bottleneck resides. As an initial approach, we measure the impact on latency
+when the cloudlet location and the video decoding library used are modified. If
+the latency is significantly reduced by changing a factor, we can conclude that
+the bottleneck resides in the corresponding component.
 
 \subsection{Pipeline Experimentation Parameters}
 
@@ -357,3 +344,336 @@ from 917 ms to 402 ms by switching to PDrAW, a speedup of almost 2.3$\times$.
 
 \section{Experiment 2: A More Structured Benchmarking Approach}
 \label{sec:exp2}
+
+\Cref{sec:exp1} covered an initial approach to benchmarking and optimizing the
+SteelEagle pipeline, which only considered end-to-end drone-to-cloudlet
+latency. It did not provide insight into the latency breakup of the pipeline
+and where the new performance bottleneck resides. Several aspects of the
+pipeline hinder obtaining this breakup.
+
+The drone sensing and pre-processing, components (a) and (b) from
+\cref{fig:ooda-mapping}, cannot be measured individually because the drone is a
+COTS product that runs closed source software which does not allow the ability
+to insert software instrumentation.  Similarly, drone post-processing and
+actuation, components (f) and (g), must be measured together. Even measuring
+components (a) and (b) in aggregate is challenging because of the way the Onion
+Omega is used. Acting as a network gateway for the drone, the Onion Omega
+routes network packets between the drone and the cloudlet. This is done by
+establishing a VPN tunnel between the cloudlet and the Onion Omega using
+WireGuard. The Onion Omega, in turn, connects to the drone's Wi-Fi hotspot,
+allowing the cloudlet to reach the drone. There is no userspace application on
+the Onion Omega where instrumentation can be inserted, the packet routing is
+done by the kernel.
+
+Another challenge involves measuring the video decoding time on the cloudlet,
+part of component (d).  To measure decoding time, we need to measure the time
+taken to receive the full decoded frame after the first network packet
+corresponding to the frame arrived. A mapping from network packets to decoded
+frames must be obtained to measure this. \Cref{fig:ooda-nomenclature} shows the
+parts of the pipeline that can be measured in red: Oberve$_{ab}$, Observe$_c$,
+Orient+Decide$_d$, Act$_e$, and Act$_{fg}$.
+
+\begin{figure}[htbp]
+    \centering
+\includegraphics[width = .5\textwidth]{figs/fig-ooda-nomenclature.pdf}
+	\begin{captext}
+		\centering Only items in \textcolor{red}{red} above can be measured.
+		\begin{tabular}{lll}
+			\phantom{00} & a = on-drone sensing & e = transmission to drone\\
+			\phantom{00} & b = on-drone pre-processing & f = on-drone post-processing\\
+			\phantom{00} & c = transmission to cloudlet & g = drone actuation\\
+			\phantom{00} & d = processing on cloudlet\\
+		\end{tabular}
+	\end{captext}
+\caption{Measurable Components of the OODA Loop}
+\label{fig:ooda-nomenclature}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centerline{\includegraphics[width = .8\textwidth]{figs/fig-exp2-method-crop.pdf}}
+    \caption{Obtaining Observe and Orient Latency using \texttt{tcpdump}}
+\label{fig:exp2-method}
+\end{figure}
+
+Our approach involves using the \texttt{tcpdump} program to capture network
+packets on the Onion Omega and the cloudlet. As shown in
+\cref{fig:exp2-method}, we record four timestamps, $t_1$ through $t_4$. $t_1$
+corresponds to the Unix timestamp contained in the frame that the drone's
+camera sees. $t_2$ is the timestamp of the first network packet transmitted by
+the Onion Omega corresponding to this frame. $t_2-t_1$, then, corresponds to
+Observe$_{ab}$.  $t_3$ is the time the first network packet corresponding to
+this frame arrives at the cloudlet. $t_3-t_2$ is the network latency
+Observe$_c$. Finally, $t_4$ is the timestamp recorded when this frame is
+decoded on the cloudlet.  $t_4-t_3$ corresponds to the decoding time for this
+frame, which is a part of Orient+Decide$_d$.
+
+\subsection{Correspondence between network packets and frames}
+
+To establish a correspondence between network packets and frames that is
+required in this approach, we exploit the structure of the slice-encoded H.264
+video stream transmitted by the drone. Video encoding formats typically
+includes two kinds of frames: intra-coded and predicted.  Intra-coded frames,
+also known as I-frames, can be decoded independently since they are
+self-contained. Predicted frames, or P-frames, are decoded relative to a
+previous I-frame since they contain deltas calculated using motion compensation
+techniques. The Anafi's H.264 video streaming performing video encoding at the
+slice level, such that each 720p (1280x720) is divided into 45 slices, where
+each slice is a 1280 pixels wide and 16 pixels high row of the frame.  I-frames
+and P-frames become I-slice and P-slices in this slice-level encoding.  The
+video encoding contains periodic I-slices to prevent error propogation in,
+sending five I-slices every three frames such that all slices are refreshed
+with an I-slice every 27 frames (\cref{fig:slice-encoding}).
+
+\begin{figure}[htbp]
+    \centerline{\includegraphics[width = .8\textwidth]{figs/fig-slice-encoding-crop.pdf}}
+    \caption{The Anafi's Slice-Level Video Encoding Refresh Wave}
+\label{fig:slice-encoding}
+\end{figure}
+
+Our approach temporarily filters network packets on the cloudlet originating
+from the drone using the Linux kernel's \texttt{netfilter} framework. During
+this time, the video decoder will miss the I-slices that it needs to decode
+P-slices. After resuming packet flow, the video decoder will be temporarily
+unable to correctly decode P-slices for which it missed an I-slice, leading to
+degraded regions in the decoded frame. This degradation stops as new I-slices
+are received during the refresh cycle, as the decoder only needs the latest
+I-slices.
+
+When packets are unfiltered, we can look for the first network packet that
+contains an I-slice for a slice of our choosing. H.264 I-slices and P-slices
+are encapsulated into Network Abstraction Layer Units (NALUs) when transmitted
+over a network, which contains metadata that allows us to infer information
+about the type of slice and the row that it corresponds to. In
+\cref{fig:garbled-ts-1}, we see that the slice corresponding to the Unix
+timestamp shown on the screen is degraded in the first few frames after we
+unfilter UDP packets. Once we find the first network packet containing an
+I-slice corresponding to this row, we can map it to the first frame outputted
+by the decoder that resolves the degradation for that row
+(\cref{fig:garbled-ts-2}).
+
+\begin{figure}[htbp]
+    \centering
+    \begin{subfigure}[t]{0.45\textwidth}
+        \centering
+        \includegraphics[width = \textwidth]{figs/garbled-ts-1.jpg}
+        \caption{Degraded timestamp because of missed I-slice}
+        \label{fig:garbled-ts-1}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.45\textwidth}
+        \centering
+        \includegraphics[width = \textwidth]{figs/garbel-ts-2.jpg}
+        \caption{I-slice received for slice corresponding to timestamp}
+        \label{fig:garbled-ts-2}
+    \end{subfigure}
+    \caption{Degraded Regions in Decoded Frame After Unfiltering UDP Packets}
+\end{figure}
+
+The kernel timestamps network packets, so we obtain $t_3$, the time the first
+packet for frame \cref{fig:garbled-ts-2} arrived. Once a correspondance has
+been establish between a network packet and a frame, we can look at the logical
+timestamp that is associated with each frame during encoding and included in
+each packet's metadata to obtain $t_3$ for subsequent frames---whenever the
+logical timestamp increments, we know that the packet corresponds to the next
+frame.
+
+\subsection{Measurements}
+\label{sec:measurements}
+
+\subsubsection{Observe$_{ab}$}
+
+\begin{figure}[htbp]
+    \centering
+    \begin{subfigure}[t]{0.45\textwidth}
+    \centering
+    \includegraphics[width = .8\textwidth]{figs/observe-ab-latency.pdf}\\
+    \small{Mean: 253.32$\pm$11.6~ms\; p99: 277.34~ms}\\
+    \caption{Observe$_{ab}$ Latency}
+    \label{fig:observe_ab_latency}
+\end{subfigure}
+\begin{subfigure}[t]{0.45\textwidth}
+    \centerline{\includegraphics[width = .8\textwidth]{figs/observe-ab-throughput.pdf}}
+    \centering
+    \small{Mean: 30.83$\pm$4.95~fps\; p1: 22.1~fps}\\
+    \caption{Observe$_{ab}$ Throughput}
+    \label{fig:observe_ab_throughput}
+\end{subfigure}
+    \caption{Observe$_{ab}$ Measurements}
+    \label{fig:observe_ab_measurements}
+\end{figure}
+
+\Cref{fig:observe_ab_measurements} shows that onboard drone sensing and
+pre-processing, Observe$_{ab}$, has a mean latency of 253 ms, with a standard
+deviation of 12 ms, and a p99 of 277 ms. Instantaneous throughput is also
+measured in frames per second (fps), using the time taken for a new frame to be
+transmitted by the drone. It has a mean of 31 fps, with a standard deviation of
+5 fps and a p1 of 22 fps.
+
+\subsubsection{Observe$_c$}
+
+\begin{figure}[htbp]
+    \centering
+    \begin{subfigure}[t]{0.45\textwidth}
+    \centering
+    \includegraphics[width = .8\textwidth]{figs/observe-c-latency.pdf}\\
+    \small{Mean: 39.37$\pm$8.07~ms\; p99: 59.51~ms}\\
+    \caption{Observe$_{c}$ Latency}
+    \label{fig:observe_c_latency}
+\end{subfigure}
+\begin{subfigure}[t]{0.45\textwidth}
+    \centerline{\includegraphics[width = .8\textwidth]{figs/observe-c-throughput.pdf}}
+    \centering
+    \small{Mean: 16.25$\pm$1.01~Mbps\; p1: 14.36~Mbps}\\
+    \caption{Observe$_{c}$ Throughput}
+    \label{fig:observe_c_throughput}
+\end{subfigure}
+    \caption{Observe$_{c}$ Measurements}
+    \label{fig:observe_c_measurements}
+\end{figure}
+
+\Cref{fig:observe_c_measurements} shows the measurements obtained for
+Observe$_c$, which involves transmission from the drone to the cloudlet. This
+component includes a short Wi-Fi segment from the drone to the Onion Omega,
+carried onboard the drone, and then a longer 4G LTE segment to the cloudlet.
+Observe$_c$ has a mean latency of 39 ms, with a standard deviation of 8 ms, and
+a p99 of 59 ms. The throughput measured on the link using \texttt{iperf} has a
+mean of 16.25 Mbps, with a standard deviation of 1 Mbps and a p1 of 14.36 Mbps.
+
+\subsubsection{Orient+Decide$_d$}
+
+\begin{figure}[htbp]
+    \centering
+    \begin{subfigure}[t]{0.45\textwidth}
+    \centering
+    \includegraphics[width = .8\textwidth]{figs/stage-1-latency-pdraw.pdf}\\
+    \small{Mean: 32.26$\pm$12.75~ms\; p99: 59.08~ms}\\
+    \caption{Orient+Decide$_{d}$ Latency}
+    \label{fig:stage1_latency}
+\end{subfigure}
+\begin{subfigure}[t]{0.45\textwidth}
+    \centerline{\includegraphics[width = .8\textwidth]{figs/stage-1-throughput-pdraw.pdf}}
+    \centering
+    \small{Mean: 36.57$\pm$15.88~fps\; p1: 17.24~fps}\\
+    \caption{Orient+Decide$_{d}$ Throughput}
+    \label{fig:stage1_throughput}
+\end{subfigure}
+    \caption{Orient+Decide$_{d}$ Measurements}
+    \label{fig:stage1_measurements}
+\end{figure}
+
+\Cref{fig:stage1_measurements} presents the latency and throughput measurements
+for Orient+Decide$_d$. This component includes three stages:
+
+\begin{itemize}
+\item Stage 1: Decoding of the drone's RTSP H.264 video stream to produce
+    individual frames
+\item Stage 2: Inferencing on each frame. This could involve using a deep
+    neural network (DNN) to perform tasks such as depth estimation or object
+    detection.
+\item Stage 3: Determining drone actuation needed based on findings from Stage
+    2 and generating the corresponding command.
+\end{itemize}
+
+Stage 2 and Stage 3's performance can vary depending on the application.
+Different DNNs can have different inference times, and the decision logic can
+vary in complexity.  Stage 1, however, remains the same and so we focus on
+measuring Stage 1 for Observe+Decide$_d$. We see a mean latency of 32 ms for
+Stage 1, with a standard deviation of 13 ms, and a p99 of 59 ms. The decoding
+software's throughput was measured as the inverse of its latency, giving an
+indication of the frame rate that the decoding software can sustain on our
+cloudlet hardware. The throughput has a mean of 37 fps with a standard
+deviation of 17 fps and a p1 of 17 fps.
+
+\subsubsection{Act$_e$}
+
+\begin{figure}[htbp]
+    \centering
+    \begin{subfigure}[t]{0.45\textwidth}
+    \centering
+    \includegraphics[width = .8\textwidth]{figs/act-e-latency.pdf}\\
+    \small{Mean: 30$\pm$4.22~ms\; p99: 49~ms}\\
+    \caption{Act$_{e}$ Latency}
+    \label{fig:act-e-latency}
+\end{subfigure}
+\begin{subfigure}[t]{0.45\textwidth}
+    \centerline{\includegraphics[width = .8\textwidth]{figs/act-e-throughput.pdf}}
+    \centering
+    \small{Mean: 28$\pm$3.66~Mbps\; p1: 19~Mbps}\\
+    \caption{Act$_{e}$ Throughput}
+    \label{fig:act-e-throughput}
+\end{subfigure}
+    \caption{Act$_{e}$ Measurements}
+    \label{fig:act_e_measurements}
+\end{figure}
+
+\Cref{fig:act_e_measurements} shows the measurements for Act$_e$, which
+involves the transmission of drone acutation commands back to the drone via the
+Onion Omega. This is the return path of Observe$_c$, and involves a 4G LTE and
+Wi-Fi segment as before. Since drone commands have a small data size, latency
+is a more crucial aspect of this component. Nevertheless, bandwidth for Act$_e$
+is much higher than Observe$_c$ because for the Onion Omega it corresponds to
+4G LTE downlink, which offers a higher bandwidth than uplink because mobile
+networks are designed to optimize downlink performance.
+
+The latency has a mean of 30 ms, with a standard deviation of 4.22 ms and a
+p99 of 49 ms. The throughput has a mean of 28 Mbps, with a standard deviation
+of 3.66 Mbps and a p1 of 19 Mbps.
+
+\subsubsection{Act$_{fg}$}
+
+\begin{wrapfigure}[12]{r}{0.3\linewidth}
+\centering
+%\includegraphics[width=0.45\linewidth]{FIGS/act_latency.png}
+    \begin{tabular}{@{}cc@{}}
+\toprule
+Run & Latency (ms)\\
+\midrule
+ 1&188\\
+ 2&170\\
+ 3&162\\
+ 4&189\\
+ 5&155\\
+\midrule
+Mean& 173~{\small$\pm$15}\\
+\bottomrule
+\end{tabular}
+\caption{\small Act$_{fg}$  Latency}
+\label{fig:act-fg-latency}
+\end{wrapfigure}
+Act$_{fg}$ involves processing of an actuation command by the drone and the
+initiation of actuation. We measure the latency as the time difference between
+the receipt of an actuation command by the drone and the start of actuation.
+To measure this, we position a stationary drone in front of a display connected
+to the cloudlet showing the current timestamp at millisecond granularity.  An
+actuation command is sent to the drone to move its gimbal while the display and
+gimbal are video-recorded using a slow-motion camera. We output the timestamp
+at which the actuation command is sent and identify the first video frame
+showing gimbal movement. Act$_{fg}$ latency is calculated as the difference
+between the timestamp shown on the display in this frame and the timestamp at
+which the drone acutation command was sent. \Cref{fig:act-fg-latency} shows
+that Act$_{fg}$ has a mean latency of 173 ms, with a standard deviation of 15
+ms.  We use a slow-motion camera which operates at 240 fps, resulting in a
+frame interval of approximately 4 ms. The measurements have an error margin of
+about five frames, resulting in an experimental error of approximately 20 ms.
+
+Act$_fg$ involves electromechanical actuation, which does not have a concept
+of streaming. As a result, throughput can be interpreted as the reciprocal of
+latency.
+
+\subsection{Overview of OODA Loop}
+
+\begin{figure}[htbp]
+    \centerline{\includegraphics[width = .6\textwidth]{figs/fig-ooda-scaling.pdf}}
+    \caption{SteelEagle OODA Loop Throughput and Latency Overview}
+\label{fig:ooda-scaling}
+\end{figure}
+
+\Cref{fig:ooda-scaling} presents a summary of the measurements from
+\cref{sec:measurements}. This depiction shows that in the best case, assuming
+no time is spent on Stage 2 and Stage 3 in the Orient+Decide$_d$ component, the
+drone takes 527 ms to react to a change in its environment. In practice, Stage
+2 and Stage 3 can involve complex computationally-intensive inferencing and
+decision-making, such as the use of DNNs for depth estimation or object
+tracking, and route planning algorithms. The height and width of the
+Orient+Decide$_d$ component in \cref{fig:ooda-scaling} would need to be scaled
+appropriately to account for this.

@@ -2,9 +2,8 @@
 
 This chapter discusses work to replace the communications relay used in
 SteelEagle to the Modal AI VOXL 2. The VOXL 2 offers significant computational
-capability, allowing the execution of Tensorflow Lite machine learning models.
-We start by characterizing this shift in offloading strategy in more general
-terms.
+capability, allowing the execution of machine learning models.  We start by
+characterizing this shift in offloading strategy in more general terms.
 
 \section{The Computation Offload Spectrum}
 \begin{figure}[htbp]
@@ -228,6 +227,22 @@ processing should be offloaded. Once frame processing is complete, the pipeline
 determines whether any drone actuation needs to be performed, and generates the
 corresponding command.
 
+\subsection{Onboard Computation Design}
+
+\begin{figure}[htbp]
+\centerline{\includegraphics[width = .9\textwidth]{figs/onboard-design-crop.pdf}}
+\caption{VOXL 2 Onboard Computation Pipeline}
+\label{fig:voxl2-onboard-pipeline}
+\end{figure}
+
+The VOXL 2 supports the Open Computing Language (OpenCL) standard, which
+assists in writing parallel programs which leverage its hardware accelerators,
+including its GPU. The VOXL 2 ships with a software suite that includes a
+program, called the \texttt{voxl-tflite-server}, that can perform
+hardware-accelerated machine learning inference. The inputs and outputs of the
+programs are
+
+
 \subsection{Latency of VOXL 2 Onboard Pipeline}
 
 \subsubsection*{Observe}
@@ -257,7 +272,7 @@ taken for the drone's gimbal to start actuating after a command is issued from
 the VOXL 2. In the case of the VOXL 2 pipeline, it requires a network hop over
 the Wi-Fi segment from the VOXL 2 to the drone, post-processing on the drone to
 process the command and electromechanical actuation of the drone's gimbal.
-Figure xx
+Figure xx presents our measurements.
 
 \begin{figure}[tbp]
 \begin{minipage}[t]{0.45\textwidth}
@@ -276,3 +291,12 @@ Mean: 60.5$\pm$6.77~ms\; p99: 77.5~ms\\
 \label{fig:voxl2-inference-hist}
 \end{minipage}
 \end{figure}
+
+\subsection{Latency of VOXL 2 Offload Pipeline}
+
+In the VOXL pipeline, frames are decoded on the VOXL instead of the cloudlet.
+This means that if the remote execution system decides to offload computation
+to the cloudlet, it must send individual frames to the cloudlet. This increases
+bandwidth requirements substantially. Previously, a bandwidth of 5 Mbps was
+sufficient to send the video stream to the cloudlet. Individual 720p frames
+average about
