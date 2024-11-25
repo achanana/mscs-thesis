@@ -9,7 +9,7 @@ plt.rcParams.update({'font.size': 18})
 plt.rcParams.update({"text.usetex": True})
 plt.rc('text.latex', preamble=r'\usepackage{sansmath}\sansmath')
 
-plt.figure(figsize=(5,5))  # Adjust figure size
+plt.figure(figsize=(5,3))  # Adjust figure size
 
 def create_hist(data, filename, bins=None, throughput=False):
     data_max = max(data)
@@ -56,7 +56,7 @@ def create_hist(data, filename, bins=None, throughput=False):
     else:
         plt.xlabel('Latency (ms)')
     plt.ylabel('Percentage of Times')
-    plt.ylim((0,100))
+    plt.ylim((0,50))
 
     # Show the plot
     plt.savefig(filename, bbox_inches='tight')
@@ -70,7 +70,7 @@ def main():
 
     with open(args.filename, "r") as f:
         reader = csv.reader(f)
-        next(reader)
+        #next(reader)
         if args.throughput:
             data = [float(row[-1]) for row in reader]
         else:
@@ -82,7 +82,7 @@ def main():
     #bins = np.array([14,14.8,15.6,16.4,17.2,18])
     #bins = np.array([10,24,38,52,66,80])
     #bins = np.array([10,26,42,58,74,90])
-    bins = np.array([15,19,23,27,31,35])
+    #bins = np.array([15,19,23,27,31,35])
     create_hist(data, output_file, bins, args.throughput)
 
     print(f'mean: {statistics.mean(data)}, median: {statistics.median(data)}, std dev: {statistics.stdev(data):.2f}, p99: {np.percentile(data, 99)}, p1: {np.percentile(data, 1)}')

@@ -176,7 +176,7 @@ available on the VOXL 2.
         \textbf{Operating system} & Ubuntu 18.04\\
         \bottomrule
     \end{tabular}
-    \caption{The specifications of the QRB5165 processor used in the VOXL 2}
+    \caption{Technical specifications of the Modal AI VOXL 2 system-on-a-chip}
     \label{tab:voxl2-specs}
 \end{table}
 
@@ -243,20 +243,47 @@ hardware-accelerated machine learning inference. The inputs and outputs of the
 programs are
 
 
-\subsection{Latency of VOXL 2 Onboard Pipeline}
+\subsection{Performance of VOXL 2 Onboard Pipeline}
 
-\subsubsection*{Observe}
+Using the terminology from \cref{fig:voxl2-ooda-loop-mapping}, we measure the
+performance of each component of the VOXL pipeline.
 
-The Observe component of the OODA loop in the new pipeline retains on-drone
+\subsubsection*{Observe$_{ab}$}
+
+The Observe$_{ab}$ component of the OODA loop in the new pipeline is the same as in
+the case of the Onion Omega (\cref{sec:onion-observe-ab}), including on-drone
 sensing and pre-processing, which involves generation of an RTSP H.264 video
-stream from the drone camera's raw video frames. The video stream is
-transmitted to the VOXL 2 over Wi-Fi, and is decoded.
+stream from the drone camera's raw video frames. We use the same drone,
+the Parrot Anafi, for the VOXL pipeline. As before, this component has a mean
+of 253 ms, with a standard deviation of 12 ms, and a p99 of 277 ms.
+
+\subsubsection*{Observe$_{c}$}
+
+Observe$_c$ involves a short Wi-Fi segment from the drone to the VOXL 2. Since
+the VOXL 2 is mere centimeters away from the drone, this component is
+negligible.
+
+\begin{comment}
 \Cref{fig:voxl2-decoding-performance} shows the latency measurements. The
 latency distribution has a mean of 262 ms, with a standard deviation of 10.5 ms
 and a p99 of 282 ms. This is comparable to the Observe$_{ab}$ measurements from
 the Onion Omega pipeline.
+\end{comment}
 
-\subsubsection*{Orient \& Decide}
+\subsubsection*{Orient+Decide$_{d}$}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width = .4\textwidth]{figs/voxl-decoding-time.pdf}\\
+\small{Mean: 54.84$\pm$11.59~ms\; p99: 76.47~ms}\\
+\caption{Orient+Decide$_d$ Measurements}
+\label{fig:voxl2-decoding-latency}
+\end{figure}
+
+Orient+Decide$_d$ involves the decoding of the RTSP video stream generated
+by the drone. \Cref{fig:voxl2-decoding-latency} shows the measurements of
+the video decoding. The latency distribution has a mean of 55 ms, with a
+standard deviation of 11.6 ms, and a p99 of 76.5 ms.
 
 Orient involves performing inference on each frame to achieve the drone's
 desired functionality. In our measurements we use the YOLOv5 model which is
@@ -265,7 +292,18 @@ measurements.  The latency distribution has a mean of 60.5 ms and a p99 of 77.5
 ms. The Decide component involves determining drone actuation and generation of
 the drone command using the drone API, which is negligible.
 
-\subsection*{Act}
+\subsubsection*{Orient+Decide$_{e}$}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width = .4\textwidth]{figs/voxl-5g-latency.pdf}\\
+\small{Mean: 37.52$\pm$10.09~ms\; p99: 59.24~ms}\\
+\caption{Orient+Decide$_e$ Measurements}
+\label{fig:voxl2-5g-latency}
+\end{figure}
+
+Orient+Decide$_e$ is incurred when the remote execution system decides to
+offload computation, and involves a 5G segment from the VOXL 2 to the cloudlet.
 
 In the onboard pipeline, as before, the Act component is measured as the time
 taken for the drone's gimbal to start actuating after a command is issued from
@@ -299,4 +337,22 @@ This means that if the remote execution system decides to offload computation
 to the cloudlet, it must send individual frames to the cloudlet. This increases
 bandwidth requirements substantially. Previously, a bandwidth of 5 Mbps was
 sufficient to send the video stream to the cloudlet. Individual 720p frames
-average about
+average about 180 KB when encoded as JPEG, requiring 43.2 Mbps bandwidth to
+send frames at 30 frames per second.
+
+\begin{table}
+    \begin{tabular}{llll}
+        \toprule
+        \textbf{Frame details} & \textbf{Frame size (KB)} & \textbf{Latency (ms)} & \textbf{Achievable FPS}\\
+        \midrule
+        720p & 180 & 934 & 12.58\\
+        720p, 80\% JPG quality  & 98 & 600 &28.63\\
+        720p, 70\% JPG quality & 79 & 304 & 29.95\\
+        360p & 79 & 307  &29.89 \\
+        360p, 80\% JPG quality & 38 &288 & 29.89\\
+        360p, 70\% JPG quality & 31 & 286 & 29.85\\
+        \bottomrule
+\end{tabular}
+\caption{Offloading Performance on the VOXL 2}
+\label{tab:voxl2-offload-performance}
+\end{table}
