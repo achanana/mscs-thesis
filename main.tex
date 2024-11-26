@@ -58,6 +58,7 @@
 }
 
 \usepackage{tikz}
+\usetikzlibrary{patterns}
 \usepackage{wrapfig}
 \usepackage{tabularx}
 \usepackage{booktabs}
@@ -81,8 +82,8 @@
 \newenvironment{captext}{%
    \begin{center}%
      \begin{minipage}{0.95\linewidth}%
-       \renewcommand{\baselinestretch}{1.0}%
-         \footnotesize}%
+       \renewcommand{\baselinestretch}{0.8}%
+         \footnotesize\centering}%
    {\renewcommand{\baselinestretch}{1.0}%
       \end{minipage}%
         \end{center}}

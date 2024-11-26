@@ -187,6 +187,7 @@ available on the VOXL 2.
 \definecolor{act-color}{RGB}{224,194,205}
 \centering
 \includegraphics[width = .7\textwidth]{figs/fig-voxl-ooda-loop-crop.pdf}
+\begin{comment}
 \begin{tikzpicture}
     \draw[fill=observe-color] (1.0,0) rectangle (1.3,0.3);
     \node[right] at (1.3,0.15) {\small Observe};
@@ -196,6 +197,25 @@ available on the VOXL 2.
 
     \draw[fill=act-color] (6.1,0) rectangle (6.4,0.3);
     \node[right] at (6.4,0.15) {\small Act};
+\end{tikzpicture}
+\end{comment}
+\begin{tikzpicture}
+    % Observe box
+    \draw[fill=observe-color] (1.0,0) rectangle (1.3,0.3);
+    \node[right] at (1.3,0.15) {\small Observe};
+
+    % Orient box with yellow hatching
+    \draw[fill=white, pattern=north east lines, pattern color=yellow]
+        (2.9,0) rectangle (3.2,0.3);
+    \node[right] at (3.2,0.15) {\small Orient};
+
+    % Decide box
+    \draw[fill=decide-color] (4.5,0) rectangle (4.8,0.3);
+    \node[right] at (4.8,0.15) {\small Decide};
+
+    % Act box
+    \draw[fill=act-color] (6.2,0) rectangle (6.5,0.3);
+    \node[right] at (6.5,0.15) {\small Act};
 \end{tikzpicture}
 \caption{Mapping the VOXL 2 pipeline to the OODA loop}
 \label{fig:voxl2-ooda-loop-mapping}
@@ -219,9 +239,24 @@ In the existing SteelEagle architecture, as described in
 video stream network packets are forwarded to the cloudlet using the Onion
 Omega as a network gateway. To perform onboard computation on the VOXL 2, we
 must obtain individual frames from the drone's video stream.  This requires
-decoding the H.264 video stream on the VOXL 2. As frames are decoded, the
-pipeline can leverage offload shaping techniques (\cref{sec:offload-shaping})
-to determine if the frame should be discarded. Then, a remote execution system,
+decoding the H.264 video stream on the VOXL 2. The Orient phase begins after
+the frames are decoded.  The VOXL pipeline has an inner and outer Orient loop:
+\begin{itemize}
+    \item \textbf{Inner loop}: Corresponds to components Orient$_e$ and
+        Orient$_f$, which involve analysis of the decoded frame and planning
+        on the VOXL
+    \item \textbf{Outer loop}: Corresponds to components Orient$_w$ through
+        Orient$_z$. Involves offloaded analysis of the decoded frame and
+        planning on the cloudlet
+\end{itemize}
+
+The outer loop involves offloading to the cloudlet, which incurs latency and
+transmission delay to and from the cloudlet. The cloudlet, being a stationary
+device, can run more accurate analysis and planning phases in less time.
+
+To conserve bandwidth, the outer loop is not always exercised.  The pipeline
+can leverage offload shaping techniques (\cref{sec:offload-shaping}) to
+determine if the frame should be discarded. Then, a remote execution system,
 such as the one developed by Flinn et al \cite{flinn2002}, can determine if
 processing should be offloaded. Once frame processing is complete, the pipeline
 determines whether any drone actuation needs to be performed, and generates the
@@ -230,24 +265,66 @@ corresponding command.
 \subsection{Onboard Computation Design}
 
 \begin{figure}[htbp]
-\centerline{\includegraphics[width = .9\textwidth]{figs/onboard-design-crop.pdf}}
+\centering
+\includegraphics[width = .9\textwidth]{figs/onboard-design-crop.pdf}
+\begin{captext}
+Components in red are developed in Python, and components in green in C++
+\end{captext}
 \caption{VOXL 2 Onboard Computation Pipeline}
 \label{fig:voxl2-onboard-pipeline}
 \end{figure}
 
 The VOXL 2 supports the Open Computing Language (OpenCL) standard, which
 assists in writing parallel programs which leverage its hardware accelerators,
-including its GPU. The VOXL 2 ships with a software suite that includes a
-program called VOXL TFlite Server, that performs
-hardware-accelerated machine learning inference. The inputs and outputs of the
-programs are sent through an inter-process communication library called \texttt{libmodalpipe}, which uses Unix pipes.
+including its GPU. The VOXL 2 ships with a software suite that includes various
+programs designed to be run as \texttt{systemd} services. One of these
+programs, VOXL TFlite Server, performs hardware-accelerated machine learning
+inference. The inputs and outputs of the programs are sent through an
+inter-process communication library called \texttt{libmodalpipe}, which uses
+Unix pipes. \texttt{libmodalpipe} includes data structures that represent data
+items such as camera image metadata and the results of inference. For example,
+\texttt{camera\_image\_metadata\_t} specifies image metadata such as width,
+height, size and format of the image, and \texttt{ai\_detection\_t} includes
+information relevant to object detection models, such as detected classes,
+confidence levels, and bounding boxes.
 
-Since the VOXL 2 runs an older version of Ubuntu, obtaining 
+VOXL TFlite Server is designed to take the drone's camera data continuously as
+input through a Unix pipe and output detections through another Unix pipe. Any
+service interesting in consuming the inference results can register as a client
+to the output pipe. We can utilize this framework to perform onboard inference,
+publishing frames requiring inference to a pipe configured as input to VOXL
+TFLite Server.
 
+The VOXL software ecosystem is targeted for C/C++ programs. However, the
+SteelEagle pipeline is currently developed in Python. As a result, a C++ proxy
+is required that can receive frames from the SteelEagle program and forward
+them to the VOXL TFLite Server for inference.  As
+\cref{fig:voxl2-onboard-pipeline} shows, an onboard compute module was
+developed that communicates with SteelEagle using the ZeroMQ messaging library,
+listening for inference requests. ZeroMQ has bindings available for popular
+programming languages, making it suitable for this use case. A SteelEagle stub
+provides a convenience API that generates a \texttt{protobuf} message that is
+sent to the onboard compute module. The \texttt{protobuf} message includes the
+contents of the frame as an RGB image along with frame metadata such as width
+and height. The onboard compute client generates the
+\texttt{camera\_image\_metadata\_t} structure that VOXL TFLite Server expects,
+and sends it to its input pipe along with the frame data.
+
+Once the VOXL TFLite Server receives an input, it publishes one
+\texttt{ai\_detection\_t} data structure to the output pipe for each detection
+on a given frame. There is no metadata published that specifies the number of
+detections to expect. This works well if a consumer wants a live stream of
+object detections. However, in our case, we only want to reply to the
+SteelEagle program once we receive all detections for a given frame. To achieve
+this, the VOXL TFLite Server program was modified to send a delimiter
+\texttt{ai\_detection\_t} data structure once all the detections have been sent
+for a given frame. Once this delimiter is received, the onboard compute module
+adds all the detections to a single \texttt{protobuf} message, and sends it
+back to the SteelEagle program.
 
 \subsection{OODA Loop of VOXL 2 SteelEagle Pipeline}
 
-Using the terminology from \cref{fig:voxl2-ooda-loop-mapping}, we measure the
+Using the terminology from \cref{fig:voxl2-ooda-loop-mapping}, we consider the
 performance of each component of the VOXL pipeline.
 
 \subsubsection*{Observe$_{ab}$}
@@ -327,8 +404,10 @@ This means that if the remote execution system decides to offload computation
 to the cloudlet, it must send individual frames to the cloudlet. This increases
 bandwidth requirements substantially. Previously, a bandwidth of 5 Mbps was
 sufficient to send the video stream to the cloudlet. Individual 720p frames
-average about 180 KB when encoded as JPEG, requiring a bandwidth of 43.2 Mbps to send 30 frames per second.
-As \cref{tab:voxl2-offload-performance} shows, the VOXL 2 does not have sufficient bandwidth to sustain this frame rate. Reducing frame size allows us to achieve this frame rate.
+average about 180 KB when encoded as JPEG, requiring a bandwidth of 43.2 Mbps
+to send 30 frames per second.  As \cref{tab:voxl2-offload-performance} shows,
+the VOXL 2 does not have sufficient bandwidth to sustain this frame rate.
+Reducing frame size allows us to achieve this frame rate.
 
 \begin{table}[htbp]
     \centering
