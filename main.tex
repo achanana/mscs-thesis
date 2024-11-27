@@ -47,6 +47,10 @@
 \Crefname{figure}{Figure}{Figures}
 \crefname{section}{Section}{Sections}
 \Crefname{section}{Section}{Sections}
+\crefname{table}{Table}{Tables}
+\Crefname{table}{Table}{Tables}
+\crefname{chapter}{Chapter}{Chapters}
+\Crefname{chapter}{Chapter}{Chapters}
 \usepackage{notoccite}
 
 \usepackage{xcolor}
@@ -95,7 +99,7 @@
 \pagestyle{empty}
 
 \title{ %% {\it \huge Thesis Proposal}\\
-{\bf Benchmarking OODA Loop of an Edge-Enabled Autonomous Drone System with On-Board Compute}}
+{\bf Analyzing the OODA Loop of an Edge-enabled Autonomous Drone System}}
 \author{Aditya Chanana}
 \date{December 18}
 \Year{2024}
@@ -117,7 +121,7 @@ Padmanabhan Pillai\\
 \maketitle
 
 \begin{dedication}
-“Science, my lad, is made up of mistakes, but they are mistakes which it is useful to make, because they lead little by little to the truth.” Jules Verne
+    Dedicated to my family and girlfriend, for their belief in me.
 \end{dedication}
 
 \pagestyle{plain} % for toc, was empty
@@ -130,18 +134,43 @@ Padmanabhan Pillai\\
     The "Observe, Orient, Decide, Act" (OODA) loop encapsulates the agility of
     cyber-physical or cyber-human systems that depend on continuous iterations
     of these steps. Systems with faster OODA loops react more quickly to
-    changes in their environment. This work extends the SteelEagle
-    cloudlet-based autonomous drone system to utilize onboard computational
-    abilities. We bechmark the OODA loop of the new setup and identify
-    opportunities for optimization. We show how to combine the use of onboard
-    computational abilities, for tasks that benefit immensely from a faster OODA loop,
-    and offloading, for tasks that are more computationally expensive, leading
-    to an optimal system that excels in real-time computer visions tasks.
+    changes in their environment. This work analyzes the OODA loop of the
+    SteelEagle edge-enabled autonomous drone system, identifying bottlenecks
+    and opportunities for optimization.
+    We also analyze the use of onboard computation with SteelEagle, showing how
+    to combine the use of onboard computational abilities, for tasks that
+    benefit immensely from a faster OODA loop, and offloading, for tasks that
+    are more computationally expensive, leading to an optimal system that
+    excels in real-time active vision tasks.
 
 \end{abstract}
 
 \begin{acknowledgments}
-Dave Eckhardt
+
+    Thank you to my research advisors Dr. Mahadev Satyanarayanan and Dr.
+    Padmanabhan Pillai for their guidance and feedback on this project, and
+    Thomas Eiszler Jr.  and Mihir Bala for their mentorship.  I would like to
+    express my gratitude to my parents, Dr. Rashmi Chanana and Sanjay Chanana,
+    who have offered their unwavering love, encouragement, and support at every
+    stage of my life.  Thank you to my girlfriend, Isabella Wegner, for your
+    belief in me.  I am grateful to my academic advisor Dr. David A. Eckhardt
+    for being a reliable source of excellent advice, and his encouragement for
+    me to pursue research.
+
+    This material is based upon work supported by the U.S. Army Research Office
+    and the U.S. Army Futures Command under Contract No. W519TC-23-C-0003, and
+    by the National Science Foundation under grant number CNS-2106862. The
+    content of the  information does not necessarily reflect the position or
+    the policy of the government and no official endorsement should be
+    inferred.
+
+    This work was done in the CMU Living Edge Lab, which is
+    supported by Intel, Arm, Vodafone, Deutsche Telekom, CableLabs, Crown
+    Castle, InterDigital, Seagate, Microsoft, the VMware University Research
+    Fund, IAI, and the Conklin Kistler family fund. Any opinions, findings,
+    conclusions or recommendations expressed in this document are those of the
+    author and do not necessarily reflect the view of the above funding
+    sources.
 \end{acknowledgments}
 
 

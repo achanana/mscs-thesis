@@ -1,5 +1,36 @@
 \chapter{Conclusion and Future Work}
+\label{ch:conclusion}
+
+We end with concluding remarks and a discussion of future work.
+
 \section{Conclusion}
-Tell me
+
+We performed a detailed investigation into the SteelEagle pipeline,
+measuring the latency and bandwidth of various components. We identified
+the FFmpeg video decoding software as a system bottleneck, and switched to
+a different software that reduced drone-to-cloudlet latency by a factor of two.
+Then, we performed a more systematic benchmark of the pipeline, mapping its
+components to the OODA loop framework. We found the onboard decoding of the
+drone video stream to be the next bottleneck in the system.
+
+Currently, this onboard decoding makes up almost half of the total OODA loop
+latency. The agility of the system will be handicapped by this component until
+we new drones are designed with an emphasis on minimizing this latency. The
+use of more powerful onboard ASIC could help. The use of advanced sensor
+technologies that are optimized for speedy sensor readout could also be
+beneficial.
+
+We also explored integrating the VOXL system-on-a-chip device as a payload
+on SteelEagle drones. This requires us to deal with bandwidth challenges,
+as sending full-fidelity frames over the network requires a very high
+bandwidth.
+
 \section{Future Work}
 
+There are many avenues for future work.
+\begin{itemize}
+    \item Exploring new drones for use in the SteelEagle system that have a
+        lower onboard sensing and pre-processing latency
+    \item Implementing a remote execution system that takes into account
+        current conditions to decide whether to offload computation
+\end{itemize}

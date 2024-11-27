@@ -2,7 +2,7 @@
 % Goal : 5-10 page talk before the talk
 % maybe not 10 pages, but providing a general overview of the paper is the goal here
 \section{Motivation}
-\label{sec:overview}
+\label{sec:motivation}
 Mobile devices, such as smartphones and smartwatches, have a key limitation---a
 limited battery life which allows them to operate for finite periods before
 requiring recharging.  Resource-intensive applications, such as those involving
@@ -37,46 +37,61 @@ performance required to adhere to mobility constraints
              &&&& 1.8 Ghz x 4\\
         \bottomrule
     \end{tabular}
+    \begin{captext}
+        *While processor efficiency depends on more factors than processor frequency, such as instructions per cycle, it provides a good first-order approximation.
+    \end{captext}
     \caption{The Mobility Penalty Over a Period of 25 Years (Adapted from Chen \cite{zchenthesis}, Flinn \cite{flinn2012cyber})}
     \label{tab:mobility-constraints}
 \end{table}
 
-This limitation is particularly problematic for unmanned aerial vehicles
-(UAVs), or drones, which spend most of their energy on flight. Larger batteries
-required to sustain intensive on-drone computation increases drone weight.
-Increased drone weight leads to an upwards spiral in weight as larger rotors
-and more powerful motors are needed to achieve the same amount of lift.  This
-requires even larger batteries which, in turn, may require a more reinforced
-aircraft structure, and so on. How, then, can we enable mobile devices to do
-more given the mobility constraints they are subject to? Advancements in
-hardware efficiency provide one possible way forward, but these advancements
-are slow and far between. It turns out that there is a way to "cheat" that
-enables mobile devices to do more today.
+Unmanned aerial vehicles (UAVs), or drones, which spend most of their energy on
+flight, are particularly affected by this limitation. Larger batteries required
+to sustain intensive on-drone computation increases drone weight.  Increased
+drone weight leads to an upwards spiral in weight as larger rotors and more
+powerful motors are needed to achieve the same amount of lift.  This requires
+even larger batteries which, in turn, may require a more reinforced aircraft
+structure, and so on. How, then, can we enable mobile devices to do more given
+the mobility constraints they are subject to? Advancements in hardware
+efficiency provide one possible way forward, but these advancements are slow
+and far between. It turns out that there is a way to "cheat" that enables
+mobile devices to do more today, leveraging static infrastructure to overcome
+the mobility penalty, known as offloading.
 
-A significant body of work in the field of mobile computing has aimed to
-address the inherent resource poverty of mobile devices using cloud or cloudlet
-offload \cite{satya1996,satya2009}.  Cloudlet offload addresses these issues by
-allowing mobile devices to remotely execute computationally expensive tasks on
-cloudlets that do not need to be light or small. This allows mobile devices to
-retain their low weight and small size, but possess superior computational
-abilities.
+A significant body of work in the field of mobile computing has utilized cloud
+or cloudlet offloading techniques to address the inherent resource poverty of
+mobile devices \cite{satya1996,satya2009}. Cloudlet offload allows mobile
+devices to remotely execute computationally expensive tasks on cloudlets that
+do not need to be light or small. This allows mobile devices to retain their
+low weight and small size, but possess superior computational abilities.
 
-SteelEagle, an autonomous drone system, follows this approach \cite{bala2024}.
-Its main tenet is the use of commerical-off-the-shelf (COTS) drones, which are
-readily available at low cost but typically have minimal to no on-board
-computational resoures.  Utilizing cloudlet offload, SteelEagle enables COTS
-drones to perform much more intelligent tasks than what they were designed for,
-and exhibit autonomous capabilities typically only found in larger, more
-expensive drones.  SteelEagle focuses on active vision tasks which require the
-ability to perform live video analytics during flight to determine the next
-course of action. SteelEagle drones relay their camera video stream over a
-commercial cellular network to a nearby on-ground edge server, a cloudlet,
-which runs a computationally expensive pipeline involving neural networks to
-perform tasks such as object detection (\cref{fig:steeleagle-drone-arch}).  This processing of the raw drone
-sensor streams allows obtaining higher level semantic information about the
-drone's physical environment, such as the distance to obstacles that present
-the danger of a collision. The drone can then be sent piloting commands to
-react, such as instructions to actuate to avoid an impending collision.
+Drones are an excellent category of mobile devices to study because of their
+wide range of useful applications as well as their design requirements which
+take mobility constraints to the extreme.  We benchmark an autonomous drone
+system that leverages offloading techniques to overcome the computational
+limitations of consumer-grade drones. We identify its limitations and evaluate
+its performance to understand the areas that future work should focus on to
+enable more capable drones that can have a wider variety of application.
+
+\section{Overview}
+\label{sec:overview}
+
+SteelEagle \cite{bala2024} is an autonomous drone system that leverages
+offloading.  Its main tenet is the use of commerical-off-the-shelf (COTS)
+drones, which are readily available at low cost but typically have minimal to
+no on-board computational resoures.  Utilizing cloudlet offload, SteelEagle
+enables COTS drones to perform much more intelligent tasks than what they were
+designed for, and exhibit autonomous capabilities typically only found in
+larger, more expensive drones.  SteelEagle focuses on active vision tasks which
+require the ability to perform live video analytics during flight to determine
+the next course of action. SteelEagle drones relay their camera video stream
+over a commercial cellular network to a nearby on-ground edge server, a
+cloudlet, which runs a computationally expensive pipeline involving neural
+networks (\cref{fig:steeleagle-drone-arch}) to perform tasks such as monocular
+camera depth perception.  This processing of the raw drone sensor stream allows
+obtaining higher level semantic information about the drone's physical
+environment. In the case of depth perception, we could infer obstacles that
+present the danger of a collision. The drone can then be sent piloting commands
+to react, perhaps to actuate to avoid an impending collision.
 
 \begin{figure}[htbp]
 \centerline{\includegraphics[width = .6\textwidth]{figs/steeleagle-drone-arch-cropped.pdf}}
@@ -85,66 +100,78 @@ react, such as instructions to actuate to avoid an impending collision.
 \end{figure}
 
 An important consideration for SteelEagle is the agility of the resulting
-system.  How quickly can a drone respond to a change in its environment? It is
-the end-to-end latency of the entire execution pipeline, including sensing,
-offloading, inferencing, decision making, and actuation, that defines the
-agility. A high end-to-end latency can severely handicap the drone---it must
-fly at a higher altitude or at lower speeds to be safe if it takes a long time
-to identify obstacles and actuate to bypass them. Drone flight at a higher
-altitude precludes close observation, and lower speeds make missions take
-longer, limiting the capabilities of the drone. Search and rescue missions in
-forests, and missions to aid law enforcement operations in dense cities, for
-instance, must fly at low altitudes while bypassing obstacles in the
-environment that present a collision risk---trees branches, streetlight poles,
-utility wires, and buildings---without impacting mission speed. Unless we can
-achieve high agility, SteelEagle drones will struggle to perform these missions
-well.  Since these missions are one of the most compelling use cases for
-autonomous drones, benchmarking the end-to-end pipeline to determine latency
-bottlenecks and identifying opportunities for latency optimization is a very
-worthy pursuit.
+system.  How quickly can a drone respond to a change in its environment? The
+end-to-end latency of the entire execution pipeline, including sensing,
+offloading, inferencing, decision making, and actuation, defines the agility. A
+high end-to-end latency can severely handicap the drone---it must fly at a
+higher altitude or at lower speeds to be safe if it takes a long time to
+identify obstacles and actuate to avoid them. Drone flight at a higher altitude
+precludes close observation, and lower speeds make missions take longer,
+limiting the capabilities of the drone. Search and rescue missions in forests,
+and missions to aid law enforcement operations in dense cities, for instance,
+must fly at low altitudes while avoiding obstacles in the environment that
+present a collision risk---trees branches, streetlight poles, utility wires,
+and buildings---without impacting mission speed. Unless we can achieve high
+agility, SteelEagle drones will struggle to perform these missions well.  Since
+these missions are one of the most compelling use cases for autonomous drones,
+benchmarking the end-to-end pipeline to determine latency bottlenecks and
+identifying opportunities for latency optimization is a very worthy pursuit.
 
-SteelEagle drones currently act as thin clients, performing no on-board
-computation---they are controlled exclusively over the network. They transmit a
-video stream from their camera to a cloudlet which determines the next course
-of action based on an analysis of the received video, sent back to the drone
-over the network. While this strategy allows treating consumer-grade
-non-programmable drones as black boxes, it presents severe limitations. First,
-SteelEagle drones struggle in areas with unreliable cell service and are
-completely inoperable in regions without cellular coverage. Second, cloudlet
-offload imposes an upper bound on drone agility as it adds the cost of a
-round-trip latency to a cloudlet. As originally envisioned, cloudlets are
-differentiated from clouds because of their physical proximity, which allows
-application end-to-end response time to be just a few milliseconds. However, in
+SteelEagle drones currently perform no onboard computation---they are
+controlled exclusively over the network.  While this strategy allows treating
+consumer-grade non-programmable drones as black boxes, it presents severe
+limitations. First, SteelEagle drones struggle in areas with unreliable cell
+service and are completely inoperable in regions without cellular coverage.
+Second, cloudlet offload imposes an upper bound on drone agility as it adds the
+cost of a round-trip latency to a cloudlet. As originally envisioned, cloudlets
+are differentiated from clouds because of their network proximity, which allows
+application end-to-end response time to be just a few milliseconds. In
 practice, the usage of commerical cellular networks for offload to the cloudlet
 increases this latency to tens of milliseconds. This limits the agility of the
 drone, as the reaction time is at least the round-trip time to the cloudlet.
 
-This thesis explores the use of onboard computation to mitigate these issues,
-and the resulting impact on drone agility. In recent years, domain-specific
-system-on-a-chip devices have become available that provide substantial
-energy-efficient on-board computational resources through the inclusion of
-hardware accelerators in the chip design. These chips can decode the video
-stream generated by the drone and perform analytics using TensorFlow Lite
-models, and often include 5G and Wi-Fi connectivity. Using such a chip as a
-communications relay in SteelEagle allows us to continue treating the drone as
-a black box, but employ new cloudlet offload tactics that result in tighter
-OODA loops for use cases that can utilize the hardware accelerators, while
-retaining the generality offered by cloudlet offload.
-
-
-
-\section{Overview}
-
+This thesis performs a comprehensive benchmarking of the SteelEagle system,
+revealing the current system bottlenecks and identifying opportunities for
+optimization. In recent years, domain-specific system-on-a-chip devices have
+become available that provide substantial energy-efficient on-board
+computational resources through the inclusion of hardware accelerators in the
+chip design. These chips can decode the video stream generated by the drone and
+perform analytics using TensorFlow Lite models, and often include 5G and Wi-Fi
+connectivity. Using such a chip as a payload on SteelEagle drones allows us to
+continue treating the drone as a black box, but employ new cloudlet offload
+tactics that result in tighter OODA loops for use cases that can utilize the
+hardware accelerators, while retaining the generality offered by cloudlet
+offload. We explore the use of onboard computation to mitigate the limitations
+of SteelEagle, and explore the resulting impact on drone agility.
 
 \section{Contributions}
 
 The contributions of this thesis include
 \begin{itemize}
-  \item Things
+  \item A discussion of efforts to optimize SteelEagle that yielded a two-fold
+      improvement in drone-to-cloudlet latency
+  \item A mapping of the SteelEagle pipeline to the OODA loop framework
+  \item An analysis of the SteelEagle pipeline's performance from a latency
+      and bandwidth perspective
+  \item An evaluation of the use of an onboard computation device to improve
+      SteelEagle performance and alleviate its limitations
 \end{itemize}
 
-
 \section{Organization}
+\Cref{ch:background} provides a detailed background on edge computing and the
+SteelEagle autonomous drone system. \Cref{ch:uav-primer} describes the history
+of drones and their development over time. We discuss the applications that
+drones are used in today, as well as the capabilities of today's drones.  We
+also discuss what autonomy means for drones. In
+\cref{ch:optimizing-steeleagle}, we describe our experimental setup for
+measuring the latency of the SteelEagle system. We include measurements which
+provided the insight needed to optimize SteelEagle, allowing for a two-fold
+improvement in SteelEagle's drone-to-cloudlet latency. In \cref{ch:voxl}, we
+explore the use of an onboard computation device called the Modal AI VOXL to
+augment SteelEagle. We conclude with \cref{ch:conclusion}, presenting
+concluding remarks and providing a road map for future work.
+
+
 \begin{comment}
 The "Observe, Orient, Decide, Act" (OODA) loop framework devised by military
 strategist John R. Boyd provides a framework to structure our investigation

@@ -16,6 +16,7 @@ def create_hist(data, filename, bins=None, throughput=False):
     data_min = min(data)
 
     if bins is None:
+        print(data_min, data_max)
         x_min = data_min - data_min % 10
         x_max = data_max + (10 - data_max % 10)
         bins = (x_max - x_min) // 10
@@ -56,7 +57,7 @@ def create_hist(data, filename, bins=None, throughput=False):
     else:
         plt.xlabel('Latency (ms)')
     plt.ylabel('Percentage of Times')
-    plt.ylim((0,50))
+    plt.ylim((0,100))
 
     # Show the plot
     plt.savefig(filename, bbox_inches='tight')
@@ -74,7 +75,7 @@ def main():
         if args.throughput:
             data = [float(row[-1]) for row in reader]
         else:
-            data = [int(round(float(row[-1]))) for row in reader]
+            data = [float(row[-1]) for row in reader]
 
     output_file = os.path.splitext(os.path.basename(args.filename))[0] + '.pdf'
     bins=None
@@ -83,6 +84,8 @@ def main():
     #bins = np.array([10,24,38,52,66,80])
     #bins = np.array([10,26,42,58,74,90])
     #bins = np.array([15,19,23,27,31,35])
+    #bins = np.array([30,40,50,60,70,80,90,100])
+    bins = np.array([0,10,20,30,40])
     create_hist(data, output_file, bins, args.throughput)
 
     print(f'mean: {statistics.mean(data)}, median: {statistics.median(data)}, std dev: {statistics.stdev(data):.2f}, p99: {np.percentile(data, 99)}, p1: {np.percentile(data, 1)}')

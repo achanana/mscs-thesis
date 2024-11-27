@@ -1,4 +1,5 @@
 \chapter{Utilizing Onboard Compute In SteelEagle}
+\label{ch:voxl}
 
 This chapter discusses work to replace the communications relay used in
 SteelEagle to the Modal AI VOXL 2. The VOXL 2 offers significant computational
@@ -48,28 +49,26 @@ the absence of an internet connection.  Chromebooks were designed with a focus
 on the use of cloud-based services, allowing them to be fitted with lower
 processing power, memory, and storage capacity compared to traditional laptops.
 
-\subsection{How should applications decide the offloading strategy?}
+\subsection{Deciding the Offloading Strategy}
 \label{sec:deciding-offloading-strategy}
 
 Choosing an offload strategy for a given application can be done based on some
 key attributes that are considered important for the application:
-\begin{enumerate}
-    \item \textbf{Mobility requirements}: is the application subject to
+\begin{itemize}
+    \item \textbf{Mobility requirements.} Is the application subject to
         mobility constraints?
-    \item \textbf{Disconnected operation}: does the application need to work reliably
+    \item \textbf{Disconnected operation.} Does the application need to work reliably
         in the face of network disconnection or degradation? Is degraded operation
         acceptable during disconnected operation?
-    \item \textbf{Latency requirements}: is the application latency-sensitive?
-        Are there tasks that are computationally intensive but can tolerate
-        high latency if a nearby cloudlet is unavailable?
-    \item \textbf{Bandwidth constraints}: how much network bandwidth is
-        available to the application?
-    \item \textbf{Cost requirements}: is low cost for devices a priority in
+    \item \textbf{Latency requirements.} Is the application latency-sensitive?
+    \item \textbf{Bandwidth constraints.} How much network bandwidth is
+        available?
+    \item \textbf{Cost requirements.} Is low cost for devices a priority in
         this application?
-\end{enumerate}
+\end{itemize}
 
 These attributes encapsulate the benefits and limitations of offloading.
-Offloading is typically only relevant for mobile devices. A mobile device that
+Offloading is most beneficial for mobile devices. A mobile device that
 is dependent entirely on offloading will be unable to function adequately when
 offloading is impossible altogether because of network disconnection, or
 impacted because of degraded network conditions, such as high latency and low
@@ -95,7 +94,8 @@ could be the accuracy of the prediction. In previous work, the concept of
 \textit{fidelity} has been used in this context, defined as the degree to which
 the results differ according to the metric \cite{noble1997}.
 
-\subsection{The dynamic nature of partial offload}
+\subsection{The Dynamic Nature of Partial Offload}
+\label{sec:offloading-dynamic-nature}
 
 Network conditions affect the performance of offloading, but they are dynamic
 in nature. Mobile devices utilizing partial offload, then, must decide an
@@ -117,7 +117,7 @@ usage, and fidelity \cite{flinn2002}. This work requires the application
 developer to partition the application, specifying application components
 that could benefit from remote execution.
 
-\subsection{Offloading shaping}
+\subsection{Offloading Shaping}
 \label{sec:offload-shaping}
 
 Hu et al \cite{hu2015} showed that there is value to doing additional onboard
@@ -180,6 +180,20 @@ available on the VOXL 2.
     \label{tab:voxl2-specs}
 \end{table}
 
+The VOXL 2 has support for running Google's Lite Runtime (LiteRT) machine
+learning models, formely known as TensorFlow Lite (TFLite). Trained TensorFlow
+and PyTorch models can be converted to LiteRT models by using techniques such
+as quantization and pruning \cite{jacob2017}. Float16 quantization reduces the
+floating-point precision of the model's weights to 16-bits, and full integer
+quantization converts them to integers. This reduces the model's size, memory
+usage and inference latency, making it more suitable for mobile device
+inferencing. Float16 quantization, for instance, reduces the size of the model
+by half and causes minimal loss in accuracy. However, GPU acceleration of
+float16-quantized models requires half-precision floating point support (FP16)
+\cite{ho2017}.
+
+\subsection{Mapping to the OODA Loop Framework}
+
 \begin{figure}[htbp]
 \definecolor{observe-color}{RGB}{175,208,149}
 \definecolor{orient-color}{RGB}{255, 255, 166}
@@ -221,26 +235,14 @@ available on the VOXL 2.
 \label{fig:voxl2-ooda-loop-mapping}
 \end{figure}
 
-The VOXL 2 has support for running Google's Lite Runtime (LiteRT) machine
-learning models, formely known as TensorFlow Lite (TFLite). Trained TensorFlow
-and PyTorch models can be converted to LiteRT models by using techniques such
-as quantization and pruning \cite{jacob2017}. Float16 quantization reduces the
-floating-point precision of the model's weights to 16-bits, and full integer
-quantization converts them to integers. This reduces the model's size, memory
-usage and inference latency, making it more suitable for mobile device
-inferencing. Float16 quantization, for instance, reduces the size of the model
-by half and causes minimal loss in accuracy. However, GPU acceleration of
-float16-quantized models requires half-precision floating point support (FP16)
-\cite{ho2017}.
-
 \Cref{fig:voxl2-ooda-loop-mapping} depicts the new pipeline with the VOXL 2.
 In the existing SteelEagle architecture, as described in
 \cref{sec:steeleagle-bg}, video decoding is performed on the cloudlet since all
 video stream network packets are forwarded to the cloudlet using the Onion
 Omega as a network gateway. To perform onboard computation on the VOXL 2, we
 must obtain individual frames from the drone's video stream.  This requires
-decoding the H.264 video stream on the VOXL 2. The Orient phase begins after
-the frames are decoded.  The VOXL pipeline has an inner and outer Orient loop:
+decoding the H.264 video stream on the VOXL 2, which commences the Orient
+phase.  The VOXL pipeline has an inner and outer Orient loop:
 \begin{itemize}
     \item \textbf{Inner loop}: Corresponds to components Orient$_e$ and
         Orient$_f$, which involve analysis of the decoded frame and planning
@@ -250,17 +252,19 @@ the frames are decoded.  The VOXL pipeline has an inner and outer Orient loop:
         planning on the cloudlet
 \end{itemize}
 
-The outer loop involves offloading to the cloudlet, which incurs latency and
-transmission delay to and from the cloudlet. The cloudlet, being a stationary
-device, can run more accurate analysis and planning phases in less time.
+The outer loop involves offloading to the cloudlet, which incurs propogation
+and transmission delay to and from the cloudlet, Orient$_w$ and Orient$_z$. The
+cloudlet, being a stationary device, can run more computationally-intensive
+analysis and planning phases which can yield more accurate results in less
+time.
 
 To conserve bandwidth, the outer loop is not always exercised.  The pipeline
 can leverage offload shaping techniques (\cref{sec:offload-shaping}) to
-determine if the frame should be discarded. Then, a remote execution system,
-such as the one developed by Flinn et al \cite{flinn2002}, can determine if
-processing should be offloaded. Once frame processing is complete, the pipeline
-determines whether any drone actuation needs to be performed, and generates the
-corresponding command.
+determine if the frame should be discarded. Then, a remote execution system
+(\cref{sec:offloading-dynamic-nature}) can determine if processing should be
+offloaded. Once frame processing is complete, the pipeline determines whether
+any drone actuation needs to be performed, and generates the corresponding
+command.
 
 \subsection{Onboard Computation Design}
 
@@ -322,9 +326,134 @@ for a given frame. Once this delimiter is received, the onboard compute module
 adds all the detections to a single \texttt{protobuf} message, and sends it
 back to the SteelEagle program.
 
+\subsection{Adaptive Transmission Rate in the VOXL 2 Pipeline}
+
+In the VOXL pipeline, frames are decoded on the VOXL instead of the cloudlet.
+This means that if the remote execution system decides to offload computation
+to the cloudlet, it must send individual frames to the cloudlet. This increases
+bandwidth requirements substantially. Previously, a bandwidth of 5 Mbps was
+sufficient to send the video stream to the cloudlet. Individual 720p frames
+average about 180 KB when encoded as JPEG, requiring a bandwidth of 43.2 Mbps
+to send 30 frames per second.
+
+As \cref{tab:voxl2-offload-performance} shows, attempting to send 30 frames per
+second on the VOXL 2, without any flow control, overwhelms the receiver since
+the VOXL 2 does not have sufficient bandwidth.  Only a frame rate of 12.58 per
+second is achievable when sending frames at full-fidelity. We also observe
+queueing delay leading to significantly higher latency when attempting to send
+full-fidelity frames.  Reducing frame size allows us to achieve better
+throughput, and gradually reduce latency as network queuing delay and
+transmission delay decrease.
+
+\begin{table}[htbp]
+    \centering
+    \begin{tabular}{@{}lccc@{}}
+        \toprule
+        \textbf{Frame details} & \textbf{Frame size (KB)} & \textbf{Avg. Latency (ms)} & \textbf{Achievable FPS}\\
+        \midrule
+        720p & 180 & 934$\pm$\small{30.47} & 12.58\\
+        720p, 80\% JPG quality  & 98 & 600$\pm$\small{65.76} &28.63\\
+        720p, 70\% JPG quality & 79 & 304$\pm$\small{12.82} & 29.95\\
+        360p & 79 & 307$\pm$\small{20.60}  &29.89 \\
+        360p, 80\% JPG quality & 38 &288$\pm$\small{13.96} & 29.89\\
+        360p, 70\% JPG quality & 31 & 286$\pm$\small{17.26} & 29.85\\
+        \bottomrule
+\end{tabular}\\
+\begin{captext}
+``Achievable FPS'' is calculated at the cloudlet
+by considering the number of frames that are received in a given time frame
+\end{captext}
+\caption{Offloading Performance on the VOXL 2 (30 FPS)}
+\label{tab:voxl2-offload-performance}
+\end{table}
+
+Restricting our transmission rate to 10 frames per second,
+\cref{tab:voxl2-offload-performance-10-fps,}, we no longer observe queuing delay.
+Even with full-fidelity frames we are able to achieve the desired frame rate.
+
+\begin{table}[htbp]
+    \centering
+    \begin{tabular}{@{}lccc@{}}
+        \toprule
+        \textbf{Frame details} & \textbf{Frame size (KB)} & \textbf{Avg. Latency (ms)} & \textbf{Achievable FPS}\\
+        \midrule
+        720p & 180 & 363$\pm$\small{22.06} & 9.98\\
+        720p, 80\% JPG quality  & 98 & 343$\pm$\small{26.04} &10\\
+        720p, 70\% JPG quality & 79 & 340$\pm$\small{46.47} & 9.96\\
+        360p & 79 & 312$\pm$\small{23.48}  &9.95 \\
+        360p, 80\% JPG quality & 38 &301$\pm$\small{27.40} & 9.97\\
+        360p, 70\% JPG quality & 31 & 289$\pm$\small{18.81} & 9.98\\
+        \bottomrule
+\end{tabular}
+\begin{captext}
+``Achievable FPS'' is calculated at the cloudlet
+by considering the number of frames that are received in a given time frame
+\end{captext}
+\caption{Offloading Performance on the VOXL 2 (10 FPS)}
+\label{tab:voxl2-offload-performance-10-fps}
+\end{table}
+
+These results show that an adaptive transmission based on current network
+conditions is essential in the VOXL pipeline. Setting a low static frame rate
+up front can leave performance on the table if the available bandwidth can
+sustain a higher frame rate. Similarly, the available the bandwidth might
+not even be sufficient to sustain the static frame rate set, which is
+highly possible in commercial cellular networks.
+
+Chen \cite{zchenthesis} approached this issue through the use of a token-bucket
+filter, which limits the number of frames allowed to be in flight at any given
+time. The mechanism replenishes tokens by having the receiver send back a token
+when a frame has been received. \Cref{tab:token-latency} shows the results when
+using a token-bucket filter in the VOXL pipeline, sending frames at full-fidelity
+(720p).
+
+\begin{table}[htbp]
+    \centering
+    \begin{tabular}{@{}ccc@{}}
+        \toprule
+        \textbf{Total Tokens} & \textbf{Average Latency (ms)} & \textbf{Frame Rate (FPS)}\\
+        \midrule
+        1 &  398$\pm$\small{32.57} & 6.03\\
+        2 & 443$\pm$\small{40.81} & 11.42\\
+        3 & 506$\pm$\small{34.93} & 11.11\\
+        \bottomrule
+
+    \end{tabular}
+    \caption{Drone-to-cloudlet Latency with Different Token Counts}
+    \label{tab:token-latency}
+\end{table}
+
+In Chen's approach, the number of tokens used are not dynamic. According to
+Chen, a small token count minimizes latency at the expense of throughput and
+resource utilization. This is indeed the observation we make: a token count of
+one results in a mean latency of 398 ms, and going up to three tokens, which
+allows up to three frames to be in flight at a time, results in a mean latency
+of 506 ms. A set-and-forget approach that uses just one token optimizes latency,
+but can lead to a lower throughput than otherwise possible, especially if
+network bandwidth improves.
+
+Our observations show the need for future work to achieve an optimal balance of
+latency and bandwidth based on the current network conditions. A dynamic token
+limit, for instance, can help achieve this. Obtaining real-time telemetry that
+indicates the end-to-end transmission time can inform a decision to dynamically
+alter token counts.
+
+These results also emphasize the fact that bandwidth is a precious and limited
+resource that can vary over time. \Cref{fig:voxl-bw-measurement} shows bandwidth measurement obtained using
+\texttt{iperf} on the VOXL using a commercial 5G provider. The mean of 11.28 Mbps
+is decent, but comes with a standard deviation of 9.34 Mbps and a p1 of 0 Mbps!
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.4\textwidth]{figs/bw_out.pdf}\\
+    \small{Mean: 11.28$\pm$9.34~Mbps\; p1: 0~Mbps}\\
+    \caption{Bandwidth Measurement on the VOXL Using 5G Modem}
+    \label{fig:voxl-bw-measurement}
+\end{figure}
+
 \subsection{OODA Loop of VOXL 2 SteelEagle Pipeline}
 
-Using the terminology from \cref{fig:voxl2-ooda-loop-mapping}, we consider the
+Using terminology from \cref{fig:voxl2-ooda-loop-mapping}, we consider the
 performance of each component of the VOXL pipeline.
 
 \subsubsection*{Observe$_{ab}$}
@@ -338,9 +467,12 @@ of 253 ms, with a standard deviation of 12 ms, and a p99 of 277 ms.
 
 \subsubsection*{Observe$_{c}$}
 
-Observe$_c$ involves a short Wi-Fi segment from the drone to the VOXL 2. Since
-the VOXL 2 is mere centimeters away from the drone, this component is
-negligible.
+Observe$_c$ involves a short Wi-Fi segment from the drone to the VOXL 2, with
+the drone positioned centimeters away.  Measurements obtained using the
+\texttt{ping} tool show that the round-trip latency has a mean of 10.33 ms,
+with a standard deviation of 1.56 ms. This provides us with an estimate of
+one-way propogation delay of 5 ms. Bandwidth on this segment cannot be measured
+since the drone is a black box.
 
 \begin{comment}
 \Cref{fig:voxl2-decoding-performance} shows the latency measurements. The
@@ -349,80 +481,111 @@ and a p99 of 282 ms. This is comparable to the Observe$_{ab}$ measurements from
 the Onion Omega pipeline.
 \end{comment}
 
-\subsubsection*{Orient+Decide$_{d}$}
+\subsubsection*{Orient$_{d}$}
 
-\begin{figure}[htbp]
+\begin{figure}[htb]
     \centering
     \includegraphics[width = .4\textwidth]{figs/voxl-decoding-time.pdf}\\
 \small{Mean: 54.84$\pm$11.59~ms\; p99: 76.47~ms}\\
-\caption{Orient+Decide$_d$ Measurements}
+\caption{Orient$_d$ Measurements}
 \label{fig:voxl2-decoding-latency}
 \end{figure}
 
-Orient+Decide$_d$ involves the decoding of the RTSP video stream generated
-by the drone. \Cref{fig:voxl2-decoding-latency} shows the measurements of
-the video decoding. The latency distribution has a mean of 55 ms, with a
-standard deviation of 11.6 ms, and a p99 of 76.5 ms.
+Orient$_d$ involves the decoding of the RTSP video stream generated by the
+drone.  \Cref{fig:voxl2-decoding-latency} shows the measurements of the video
+decoding. The latency distribution has a mean of 55 ms, with a standard
+deviation of 11.6 ms, and a p99 of 76.5 ms. This is comparable to the decoding
+latency we obtained for the Onion Omega pipeline
+(\cref{sec:onion-orient-decide-d}), which had a mean of 32.26 ms, with a
+standard deviation of 12.75 ms and a p99 of 59.08 ms.
 
-\subsubsection*{Orient+Decide$_{e}$}
+\subsubsection*{Orient$_{e}$}
+
+\begin{figure}[htbp]
+\centerline{\includegraphics[width = 0.4\textwidth]{figs/onboard-inference-hist.pdf}}
+\centering
+Mean: 60.58$\pm$6.98~ms\; p99: 80~ms\\
+\caption{Orient$_e$ Measurements Using a Float16-quantized YOLOv5 Model}
+\label{fig:voxl2-inference-hist}
+\end{figure}
+
+Orient$_e$ corresponds to Stage 2 of the Onion Omega pipeline, discussed in
+\cref{sec:onion-orient-decide-d}. \Cref{fig:voxl2-inference-hist} shows
+measurements for running a machine learning model on the VOXL. We use a
+float16-quantized YOLOv5 model for inference, which is used for detecting
+objects. We obtain a mean latency of 60.58 ms, with a standard deviation of
+6.98 ms and a p99 of 80 ms.
+
+\subsubsection*{Orient$_{f}$}
+
+Orient$_f$ involves processing on the VOXL with the inference results obtained
+from Orient$_e$. The performance of this component is very application-specific,
+so we ignore it for the purposes of this assessment.
+
+\subsubsection*{Orient$_{w}$}
+
+Orient$_w$ involves the latency for sending a frame to the cloudlet for
+offloading computation. \Cref{fig:voxl2-5g-latency} shows that this latency
+has a mean of 53.64 ms, with a standard deviation of 9.65 ms and a p99 of
+83.03 ms.
 
 \begin{figure}[htbp]
     \centering
     \includegraphics[width = .4\textwidth]{figs/voxl-5g-latency.pdf}\\
-\small{Mean: 37.52$\pm$10.09~ms\; p99: 59.24~ms}\\
-\caption{Orient+Decide$_e$ Measurements}
+\small{Mean: 53.64$\pm$9.65~ms\; p99: 83.03~ms}\\
+\caption{Orient$_w$ Measurements}
 \label{fig:voxl2-5g-latency}
 \end{figure}
 
-Orient+Decide$_e$ is incurred when the remote execution system decides to
-offload computation, and involves a 5G segment from the VOXL 2 to the cloudlet.
+\subsubsection*{Orient$_{x}$}
 
-\subsubsection*{Orient+Decide$_{f}$}
-
-\begin{figure}[htbp]
-\centerline{\includegraphics[width = 0.5\textwidth]{figs/onboard-inference-hist.pdf}}
-\centering
-Mean: 60.5$\pm$6.77~ms\; p99: 77.5~ms\\
-\caption{Onboard inference on the VOXL 2 using a Float16-quantized YOLOv5 model}
-\label{fig:voxl2-inference-hist}
-\end{figure}
-
-Orient+Decide$_f$ corresponds to Stage 2 and Stage 3 of the Onion Omega pipeline, discussed in \cref{sec:onion-orient-decide-d}. \Cref{fig:voxl2-inference-hist} shows measurements for running a machine learning model on the VOXL. We use a float16-quantized YOLOv5 model for inference, which is used for detecting objects. We obtain a mean latency of 60.5 ms, with a standard deviation of 6.77 ms and a p99 of 77.5 ms.
-
-\subsubsection*{Act$_{g}$}
-
-Act$_g$ involves a 5G segment from the cloudlet to the drone via the VOXL 2 when offloading to the cloudlet. In the case of the onboard pipeline, only a Wi-Fi segment is needed.
-
-\subsubsection*{Act$_{hi}$}
-
-Act$_{hi}$ is the same as Act$_{fg}$ in the Onion Omega pipeline, discussed in \cref{sec:onion-act-fg}, involving drone post-processing and actuation. For the actuation of the Parrot Anafi drone's gimbal, it has a mean of 173 ms and a standard deviation of 15 ms.
-
-\subsection{Latency of VOXL 2 Offload Pipeline}
-
-In the VOXL pipeline, frames are decoded on the VOXL instead of the cloudlet.
-This means that if the remote execution system decides to offload computation
-to the cloudlet, it must send individual frames to the cloudlet. This increases
-bandwidth requirements substantially. Previously, a bandwidth of 5 Mbps was
-sufficient to send the video stream to the cloudlet. Individual 720p frames
-average about 180 KB when encoded as JPEG, requiring a bandwidth of 43.2 Mbps
-to send 30 frames per second.  As \cref{tab:voxl2-offload-performance} shows,
-the VOXL 2 does not have sufficient bandwidth to sustain this frame rate.
-Reducing frame size allows us to achieve this frame rate.
+\Cref{tab:yolo-model-stats} shows the performance of various YOLO models on a
+cloudlet. The mean latency varies from 28 ms for the smallest YOLO model to 42
+ms for the largest. The latency of onboard inference, Orient$_e$, is greater
+than that of the largest YOLO model on the cloudlet, which emphasizes the
+mobility penalty that the VOXL incurs.
 
 \begin{table}[htbp]
-    \centering
-    \begin{tabular}{llll}
-        \toprule
-        \textbf{Frame details} & \textbf{Frame size (KB)} & \textbf{Avg. Latency (ms)} & \textbf{Achievable FPS}\\
-        \midrule
-        720p & 180 & 934$\pm$\small{30.47} & 12.58\\
-        720p, 80\% JPG quality  & 98 & 600$\pm$\small{65.76} &28.63\\
-        720p, 70\% JPG quality & 79 & 304$\pm$\small{12.82} & 29.95\\
-        360p & 79 & 307$\pm$\small{20.60}  &29.89 \\
-        360p, 80\% JPG quality & 38 &288$\pm$\small{13.96} & 29.89\\
-        360p, 70\% JPG quality & 31 & 286$\pm$\small{17.26} & 29.85\\
-        \bottomrule
-\end{tabular}
-\caption{Offloading Performance on the VOXL 2}
-\label{tab:voxl2-offload-performance}
+\centering
+\begin{tabular}{@{}lccc@{}}
+\toprule
+\textbf{Model} & \textbf{Latency} & \textbf{Throughput} & \textbf{mAP} \\
+ & (ms) & (fps) & \\
+\midrule
+YOLOv5s  & 28 & 25 & 56.8\\
+YOLOv5m  & 37 & 20 & 64.1\\
+YOLOv5l  & 42 & 20 & 67.3\\
+\bottomrule
+\end{tabular}\\
+\begin{captext}
+  The inference and throughput were obtained on our
+  cloudlet.  The mean average precision~(mAP)
+  is from the YOLO documentation.
+\end{captext}
+\vspace{-0.1in}
+\caption{YOLOv5 Performance on Cloudlet (from \cite{bala2025})}
+\label{tab:yolo-model-stats}
 \end{table}
+
+\subsubsection*{Orient$_{y}$}
+
+Orient$_y$ performs the same function as Orient$_f$ on the VOXL.  It involves
+processing with the inference results obtained from Orient$_x$. The performance
+of this component is very application-specific, so we ignore it for the
+purposes of this assessment.
+
+\subsubsection*{Orient$_{z}$}
+
+Orient$_z$ involves a 5G segment from the cloudlet to the VOXL 2. We re-use
+the measurements from Orient$_{w}$ for this component.
+
+\subsubsection*{Act$_{h}$}
+
+Act$_h$ involves a Wi-Fi segment from the VOXL 2 to the drone. We obtain the
+same measurement for Act$_h$ as Orient$_c$, with a estimate of 5 ms obtained
+using the \texttt{ping} utility.
+
+\subsubsection*{Act$_{ij}$}
+
+Act$_{ij}$ is the same as Act$_{fg}$ in the Onion Omega pipeline, discussed in \cref{sec:onion-act-fg}, involving drone post-processing and actuation. For the actuation of the Parrot Anafi drone's gimbal, it has a mean of 173 ms and a standard deviation of 15 ms.
+

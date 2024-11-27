@@ -1,24 +1,33 @@
 \chapter{Primer on UAVs}
+\label{ch:uav-primer}
+
+This chapter presents background information on unmanned aerial vehicles
+(UAVs), or drones. Drones have had a long history of evolution, starting as
+huge gunnery targets in the 1910s to today's small consumer photography drones
+which are readily available in stores. Beginning with the history of their
+evolution in \cref{sec:drone-history}, we move on to describe the capabilities
+found in present-day drones in \cref{sec:drone-capabilities}. We end in
+\cref{sec:autonomy-levels} with a description of a framework for characterizing
+autonomous capabilities in drones.
 
 \section{History of Drones}
 \label{sec:drone-history}
-
-Unmanned aerial vehicles (UAVs), or drones, are aircraft that can be operated
-remotely without the need for a human pilot on board. While there were many
-early pilotless aircraft, the first remote controlled aircraft appeared during
-the First World War, developed by Britain and the US in 1917
-\cite{dronehistory}. Many of these early drones were used as anti-aircraft
-gunnery training targets. In the 1930s, the term "drone" arose inspired by the
-de Havilland DH82B Queen Bee (\cref{fig:queen-bee}), designed as a low-cost
-radio-controlled target aircraft, which saw over four hundred units built by
-1943. The Queen Bee was the first drone designed with the ability to return to
-ground safely and be reused \cite{queenbee, pbs05}.
 
 \begin{figure}[htbp]
 \centerline{\includegraphics[width = .6\textwidth]{figs/queenbee.png}}
 \caption{de Havilland DH82B Queen Bee \cite{baesystems}, the first radio-controlled drone}
 \label{fig:queen-bee}
 \end{figure}
+
+Drones, are aircraft that can be operated remotely without the need for a human
+pilot on board. While there were many early pilotless aircraft, the first
+remote controlled aircraft appeared during the First World War, developed by
+Britain and the US in 1917 \cite{dronehistory}. Many of these early drones were
+used as anti-aircraft gunnery training targets. In the 1930s, the term "drone"
+arose inspired by the de Havilland DH82B Queen Bee (\cref{fig:queen-bee}),
+designed as a low-cost radio-controlled target aircraft, which saw over four
+hundred units built by 1943. The Queen Bee was the first drone designed with
+the ability to return to ground safely and be reused \cite{queenbee, pbs05}.
 
 These early drones were fixed-wing aircraft that were used primarily for combat
 or training. From the 1970s, drones such as the Ryan Model 147 Lightning
@@ -29,7 +38,7 @@ Atomics MQ-1 Predator can fly for over 14 hours performing surveillance
 missions using an array of sensors, including infrared cameras.
 
 \begin{figure}[htbp]
-\centerline{\includegraphics[width = .4\textwidth]{figs/dji-mini-4k.jpg}}
+\centerline{\includegraphics[width = .3\textwidth]{figs/dji-mini-4k.jpg}}
 \caption{DJI Mini 4K}
 \label{fig:dji-mini-4k}
 \end{figure}
@@ -55,7 +64,7 @@ for almost 800,000 drones \cite{faa_drones_2024}.  This figure excludes
 thousands of hobbyist drones weighing under 250 g that do not require FAA
 registration.
 
-\section{Capabilities of Today's Drones}
+\section{Capabilities of Present-day Drones}
 \label{sec:drone-capabilities}
 
 Today, the set of features available in consumer-grade drones is impressive.
@@ -112,7 +121,8 @@ Consumer drones are typically controlled over Wi-Fi using a controller or a
 smartphone app, and typically lack cellular connectivity, limiting their
 flying range.
 
-\section{Levels of Autonomy}
+\section{Levels of Drone Autonomy}
+\label{sec:autonomy-levels}
 
 \begin{figure}[htbp]
 \centerline{\includegraphics[width = .8\textwidth]{figs/autonomy-spectrum.pdf}}
